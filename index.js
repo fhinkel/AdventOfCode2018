@@ -1,47 +1,60 @@
 const fetch = require('node-fetch');
 const fs = require('fs').promises;
 
-let readInput = async() => {
-    let res = await fs.readFile('./input.txt');
+let readInput = async () => {
+    let res = await fs.readFile('./input2.txt');
+    // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
-    console.log(inputs);
+    // console.log(inputs);
     return inputs
 }
 
-let findFrequency = async (inputs) => {
-    let frequencies = new Set();
-    let f = 0;
-    let i = 0;
-    console.log(`Roundf ${i++} with set size ${frequencies.size}`);
-
-    for(let input of inputs) {
-        f = f + Number(input);
-        if(frequencies.has(f)) {
-            return f;
-        }
-        frequencies.add(f);
-    }
-
-    console.log(f);
-
-    while (true) {
-        console.log(`Round ${i++} with set size ${frequencies.size}`);
-
-        for(let input of inputs) {
-            f = f + Number(input);
-            if(frequencies.has(f)) {
-                return f;
+let distance = (s1, s2) => {
+    let d = 0;
+    for (let i = 0; i < s1.length; i++) {
+        if (s1[i] !== s2[i]) {
+            d++;
+            if (d > 1) {
+                return d;
             }
-            frequencies.add(f);
         }
     }
-} 
 
-let main = async() => {
+    return d;
+}
+
+let findMultiples = (s) => {
+    let m = new Map();
+    for (let c of s.split('')) {
+        m.set(c, 1 + (m.get(c) || 0));
+    }
+    const counts = [...m.values()];
+    return [counts.includes(2), counts.includes(3)];
+}
+
+let nearIds = async (inputs) => {
+    for (let i = 0; i < inputs.length; i++) {
+        for (let j = 1; j < inputs.length; j++) {
+            if (distance(inputs[i], inputs[j]) === 1) {
+                const s1 = inputs[i];
+                const s2 = inputs[j];
+                let res = '';
+                for (let k = 0; k < s1.length; k++) {
+                    if (s1[k] === s2[k]) {
+                        res += s1[k];
+                    }
+                }
+                return res;
+            }
+        }
+    }
+    return 'No near boxes found.'
+}
+
+let main = async () => {
     let inputs = await readInput();
 
-    // inputs = [+7, +7, -2, -7, -4];
-    let f = await findFrequency(inputs);
+    let f = await nearIds(inputs);
     console.log(f);
 }
 
