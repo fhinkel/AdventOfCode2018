@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    let res = await fs.readFile('./input2.txt');
+    let res = await fs.readFile('./input3.txt');
     // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
     // console.log(inputs);
@@ -32,30 +32,40 @@ let findMultiples = (s) => {
     return [counts.includes(2), counts.includes(3)];
 }
 
-let nearIds = async (inputs) => {
-    for (let i = 0; i < inputs.length; i++) {
-        for (let j = 1; j < inputs.length; j++) {
-            if (distance(inputs[i], inputs[j]) === 1) {
-                const s1 = inputs[i];
-                const s2 = inputs[j];
-                let res = '';
-                for (let k = 0; k < s1.length; k++) {
-                    if (s1[k] === s2[k]) {
-                        res += s1[k];
-                    }
-                }
-                return res;
+let overlap = async (inputs) => {
+    let fabric = [];
+    for (let i = 0; i < 1000; i++) {
+        fabric[i] = [];
+    }
+    for (let input of inputs) {
+        // #1 @ 1,3: 4x4
+        let [, , start, square] = input.split(' ');
+        let [left, top] = start.slice(0, -1).split(',').map(Number);
+        let [width, height] = square.split('x').map(Number);
+
+        for (let w = 0; w < width; w++) {
+            for (let h = 0; h < height; h++) {
+                fabric[w + left][h + top] = 1 + (fabric[w + left][h + top] || 0);
             }
         }
     }
-    return 'No near boxes found.'
+
+    let overlap = 0;
+    for (let w = 0; w < 1000; w++) {
+        for (let h = 0; h < 1000; h++) {
+            if (fabric[w][h] > 1) {
+                overlap++;
+            }
+        }
+    }
+    return overlap;
 }
 
 let main = async () => {
     let inputs = await readInput();
 
-    let f = await nearIds(inputs);
-    console.log(f);
+    let res = await overlap(inputs);
+    console.log(res);
 }
 
 main();
