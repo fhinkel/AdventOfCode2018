@@ -60,9 +60,7 @@ let sleepsTheMost = (inputs) => {
     return id;
 }
 
-let bestMinute = (inputs) => {
-    inputs.sort();
-    let id = sleepsTheMost(inputs);
+let findMostSleepyMinute = (inputs, id) => {
     let re = new RegExp('#' + id);
 
     let sleepyGuardsShift = false;
@@ -96,14 +94,21 @@ let bestMinute = (inputs) => {
     let minute;
     let maxValue = -1;
 
-    console.log([...sleepyMinutes]);
-
     [...sleepyMinutes.entries()].forEach(([k, v]) => {
         if (v > maxValue) {
             maxValue = v;
             minute = k;
         }
     })
+
+    return minute;
+}
+
+let bestMinute = (inputs) => {
+    inputs.sort();
+    let id = sleepsTheMost(inputs);
+    let minute = findMostSleepyMinute(inputs, id);
+
     return minute*id;
 }
 
