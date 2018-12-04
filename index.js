@@ -60,20 +60,18 @@ let sleepsTheMost = (inputs) => {
     return id;
 }
 
-let findMostSleepyMinute = (inputs, id) => {
-    let re = new RegExp('#' + id);
+let findMostSleepyMinute = (inputs) => {
+    // < minute, [guards]>
+    let sleep = new Map();
 
-    let sleepyGuardsShift = false;
+    let currentGuard;
 
-    // <minute, how many times asleep>
-    let sleepyMinutes = new Map();
-    
     inputs.forEach(s => {
-        if (s.match(re)) {
-            sleepyGuardsShift = true;
-        } else if (s.match(/#/)) {
-            sleepyGuardsShift = false;
-        } else if(sleepyGuardsShift) {
+        // [1518-11-01 23:58] Guard #99 begins shift
+        if (s.match(/#/)) {
+            let { groups: { id } } = s.match(/#(?<id>\d+)/);
+            currentGuard = id;
+        } else {
             // [1518-11-02 00:40] falls asleep
             // [1518-11-02 00:50] wakes up
             let m = s.match(/(?<hour>\d+):(?<minutes>\d+)]/);
@@ -83,40 +81,51 @@ let findMostSleepyMinute = (inputs, id) => {
                 fallsAsleep = minutes;
             } else if (s.match(/wakes up/)) {
                 let wakesUp = minutes;
-                let total = wakesUp - fallsAsleep;
-                for(let i = fallsAsleep; i < wakesUp; i++) {
-                    sleepyMinutes.set(i, 1 + (sleepyMinutes.get(i) || 0 ));
+                for (let i = fallsAsleep; i < wakesUp; i++) {
+                    let previous = sleep.get(i) || [];
+                    previous.push(currentGuard)
+                    sleep.set(i, previous);
                 }
             }
-        } 
-    })
-
-    let minute;
-    let maxValue = -1;
-
-    [...sleepyMinutes.entries()].forEach(([k, v]) => {
-        if (v > maxValue) {
-            maxValue = v;
-            minute = k;
         }
     })
 
-    return minute;
+    let maxPair = (map) => {
+        let maxKey;
+        let maxValue = -1;
+        [...map.entries()].forEach(([k, v]) => {
+            if (v > maxValue) {
+                maxValue = v;
+                maxKey = k;
+            }
+        })
+        return [maxKey, maxValue];
+    }
+
+    let minute;
+    let maxOccurance = -1;
+    let maxGuard;
+    [...sleep.entries()].forEach(([m, g]) => {
+        let guards = new Map();
+        g.forEach(id => {
+            guards.set(id, (guards.get(id) || 0) + 1);
+        });
+
+        let [guard, occurance] = maxPair(guards);
+        if (occurance > maxOccurance) {
+            minute = m;
+            maxOccurance = occurance;
+            maxGuard = guard;
+        }
+    })
+
+    return minute * maxGuard;
 }
-
-let bestMinute = (inputs) => {
-    inputs.sort();
-    let id = sleepsTheMost(inputs);
-    let minute = findMostSleepyMinute(inputs, id);
-
-    return minute*id;
-}
-
 
 let main = async () => {
     let inputs = await readInput();
-
-    let res = await bestMinute(inputs);
+    inputs.sort();
+    let res = findMostSleepyMinute(inputs);
     console.log(res);
 }
 
