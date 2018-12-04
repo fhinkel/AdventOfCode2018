@@ -63,12 +63,48 @@ let sleepsTheMost = (inputs) => {
 let bestMinute = (inputs) => {
     inputs.sort();
     let id = sleepsTheMost(inputs);
+    let re = new RegExp('#' + id);
 
+    let sleepyGuardsShift = false;
 
+    // <minute, how many times asleep>
+    let sleepyMinutes = new Map();
+    
+    inputs.forEach(s => {
+        if (s.match(re)) {
+            sleepyGuardsShift = true;
+        } else if (s.match(/#/)) {
+            sleepyGuardsShift = false;
+        } else if(sleepyGuardsShift) {
+            // [1518-11-02 00:40] falls asleep
+            // [1518-11-02 00:50] wakes up
+            let m = s.match(/(?<hour>\d+):(?<minutes>\d+)]/);
+            let minutes = Number(m.groups.minutes);
 
-    let minute = 0;
+            if (s.match(/falls asleep/)) {
+                fallsAsleep = minutes;
+            } else if (s.match(/wakes up/)) {
+                let wakesUp = minutes;
+                let total = wakesUp - fallsAsleep;
+                for(let i = fallsAsleep; i < wakesUp; i++) {
+                    sleepyMinutes.set(i, 1 + (sleepyMinutes.get(i) || 0 ));
+                }
+            }
+        } 
+    })
 
-    return id;
+    let minute;
+    let maxValue = -1;
+
+    console.log([...sleepyMinutes]);
+
+    [...sleepyMinutes.entries()].forEach(([k, v]) => {
+        if (v > maxValue) {
+            maxValue = v;
+            minute = k;
+        }
+    })
+    return minute*id;
 }
 
 
