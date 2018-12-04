@@ -2,16 +2,14 @@ const fetch = require('node-fetch');
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    // let res = await fs.readFile('./input4.txt');
-    let res = await fs.readFile('./testInput.txt');
+    let res = await fs.readFile('./input4.txt');
+    // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
     // console.log(inputs);
     return inputs;
 }
 
-let bestMinute = (inputs) => {
-    inputs.sort();
-
+let sleepsTheMost = (inputs) => {
     // <guard id, total sleep minutes>
     let sleeps = new Map();
     let currentGuard;
@@ -19,7 +17,7 @@ let bestMinute = (inputs) => {
     inputs.forEach(s => {
         // [1518-11-01 23:58] Guard #99 begins shift
         let newGuard = s.match(/#(?<id>\d+)/);
-        if(newGuard) {
+        if (newGuard) {
             currentGuard = newGuard.groups.id;
             // console.log(`New guard ${newGuard.groups.id}`);
 
@@ -34,7 +32,7 @@ let bestMinute = (inputs) => {
             }
             let minutes = Number(m.groups.minutes);
 
-            if(s.match(/falls asleep/)) {
+            if (s.match(/falls asleep/)) {
                 fallsAsleep = minutes;
             } else if (s.match(/wakes up/)) {
                 let wakesUp = minutes;
@@ -44,18 +42,33 @@ let bestMinute = (inputs) => {
                     console.log(s);
                     return;
                 }
-                console.log(total);
                 sleeps.set(currentGuard, total + (sleeps.get(currentGuard) || 0));
             }
         }
     })
-    console.log([...sleeps.entries()]);
-        
-    
+    // console.log([...sleeps.entries()]); // #1217 sleeps the most
+
+    let id;
+    let maxValue = -1;
+
+    [...sleeps.entries()].forEach(([k, v]) => {
+        if (v > maxValue) {
+            maxValue = v;
+            id = k;
+        }
+    })
+    return id;
+}
+
+let bestMinute = (inputs) => {
+    inputs.sort();
+    let id = sleepsTheMost(inputs);
+
+
 
     let minute = 0;
-    
-    return minute;
+
+    return id;
 }
 
 
