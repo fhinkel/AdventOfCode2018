@@ -34,7 +34,7 @@ let minifyInput = (s) => {
             // console.log(`${reacted[i]}: ${leftString} and ${rightString}`)
             s = leftString + rightString;
         }
-        if(reacted.length === 0) {
+        if (reacted.length === 0) {
             workLeft = false;
         }
 
@@ -48,10 +48,23 @@ let minifyInput = (s) => {
 
 let main = async () => {
     let inputs = await readInput();
-    console.log(inputs[0]);
-    let res = minifyInput(inputs[0]);
-    console.log(res);
-    console.log(res.length);
+    // console.log(inputs[0]);
+
+    // alphabet = 'abc'.split('');
+    alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+    let s = inputs[0];
+
+    let minLenght = minifyInput(s).length;
+    for (let char of alphabet) {
+        let minified = s.split('').filter((c) => {
+            return (c !== char) && (c.toLowerCase() !== char);
+        });
+        let reduced = minifyInput(minified.join(''));
+
+        minLenght = Math.min(reduced.length, minLenght);
+
+    }
+    console.log(minLenght);
 
 }
 
