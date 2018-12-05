@@ -1,4 +1,3 @@
-const fetch = require('node-fetch');
 const fs = require('fs').promises;
 
 let readInput = async () => {
@@ -11,8 +10,7 @@ let readInput = async () => {
 let minifyInput = (s) => {
 
     let stack = [];
-    stack.push(s[0]);
-    for (let i = 1; i < s.length; i++) {
+    for (let i = 0; i < s.length; i++) {
         if (stack.length > 0
             && s[i] !== stack[stack.length - 1]
             && s[i].toLowerCase() === stack[stack.length - 1].toLowerCase()
@@ -23,9 +21,7 @@ let minifyInput = (s) => {
             stack.push(s[i]);
         }
     }
-
     return stack;
-
 }
 
 
@@ -33,11 +29,12 @@ let minifyInput = (s) => {
 let main = async () => {
     let inputs = await readInput();
     let s = inputs[0]
-    let min = minifyInput(s).length;
+    let min = Number.MAX_VALUE;
     let chars = 'abcdefghijklmnopqrstuvwxyz';
 
     for (let char of chars.split('')) {
-        min = Math.min(min, minifyInput(s.split('').filter(c => (c.toLowerCase() !== char))).length);
+        let withoutC = s.split('').filter(c => (c.toLowerCase() !== char));
+        min = Math.min(min, minifyInput(withoutC).length);
     }
 
     console.log(min);
