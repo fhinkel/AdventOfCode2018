@@ -8,20 +8,10 @@ let readInput = async () => {
 }
 
 let minifyInput = (s) => {
-
-    let stack = [];
-    for (let i = 0; i < s.length; i++) {
-        if (stack.length > 0
-            && s[i] !== stack[stack.length - 1]
-            && s[i].toLowerCase() === stack[stack.length - 1].toLowerCase()
-        ) {
-            // cancel each other
-            stack.pop();
-        } else {
-            stack.push(s[i]);
-        }
-    }
-    return stack;
+    return s.reduce((acc, v) => 
+        (acc.length > 0 && acc[acc.length - 1] !== v && acc[acc.length - 1].toLowerCase() === v.toLowerCase()) ?
+            acc.slice(0, -1) : [...acc, v]
+       );
 }
 
 
@@ -31,6 +21,7 @@ let main = async () => {
     let s = inputs[0]
     let min = Number.MAX_VALUE;
     let chars = 'abcdefghijklmnopqrstuvwxyz';
+
 
     for (let char of chars.split('')) {
         let withoutC = s.split('').filter(c => (c.toLowerCase() !== char));
