@@ -10,37 +10,21 @@ let readInput = async () => {
 
 let minifyInput = (s) => {
 
-    let workLeft = true;
-
-    while (workLeft) {
-        let reacted = [];
-        let i = 0;
-        while (i < s.length - 1) {
-            let left = s[i];
-            let right = s[i + 1];
-            if ((left !== right) && (left.toUpperCase() === right.toUpperCase())) {
-                // console.log(`Delete ${s[i]} at ${i}`);
-                reacted.push(i);
-                i++;
-            }
-            i++
+    let stack = [];
+    stack.push(s[0]);
+    for (let i = 1; i < s.length; i++) {
+        if (stack.length > 0
+            && s[i] !== stack[stack.length - 1]
+            && s[i].toLowerCase() === stack[stack.length - 1].toLowerCase()
+        ) {
+            // cancel each other
+            stack.pop();
+        } else {
+            stack.push(s[i]);
         }
-
-        // console.log(`These need to be deleted: ${reacted}`);
-        for (let i = reacted.length - 1; i >= 0; i--) {
-            // delete i-1 and i
-            let leftString = s.slice(0, reacted[i]);
-            let rightString = s.slice(reacted[i] + 2)
-            // console.log(`${reacted[i]}: ${leftString} and ${rightString}`)
-            s = leftString + rightString;
-        }
-        if (reacted.length === 0) {
-            workLeft = false;
-        }
-
     }
 
-    return s;
+    return stack;
 
 }
 
@@ -48,23 +32,8 @@ let minifyInput = (s) => {
 
 let main = async () => {
     let inputs = await readInput();
-    // console.log(inputs[0]);
 
-    // alphabet = 'abc'.split('');
-    alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
-    let s = inputs[0];
-
-    let minLenght = minifyInput(s).length;
-    for (let char of alphabet) {
-        let minified = s.split('').filter((c) => {
-            return (c !== char) && (c.toLowerCase() !== char);
-        });
-        let reduced = minifyInput(minified.join(''));
-
-        minLenght = Math.min(reduced.length, minLenght);
-
-    }
-    console.log(minLenght);
+    console.log(minifyInput(inputs[0]).length);
 
 }
 
