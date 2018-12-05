@@ -32,8 +32,15 @@ let minifyInput = (s) => {
 
 let main = async () => {
     let inputs = await readInput();
+    let s = inputs[0]
+    let min = minifyInput(s).length;
+    let chars = 'abcdefghijklmnopqrstuvwxyz';
 
-    console.log(minifyInput(inputs[0]).length);
+    for (let char of chars.split('')) {
+        min = Math.min(min, minifyInput(s.split('').filter(c => (c.toLowerCase() !== char))).length);
+    }
+
+    console.log(min);
 
 }
 
