@@ -35,7 +35,7 @@ let markDistances = (inputs, x, y) => {
     for (let i = 0; i <= x; i++) {
         board.push([]);
         for (let j = 0; j <= y; j++) {
-            // <point, [distances]>
+            // <input, [distances]>
             board[i][j] = new Map();
         }
 
@@ -52,65 +52,24 @@ let markDistances = (inputs, x, y) => {
     return board;
 }
 
-let closestCoordinates = (board) => {
-
-    for (let i = 0; i < board.length; i++) {
-        for (let j = 0; j < board[0].length; j++) {
-            // <point, [distances]>
-            let m = board[i][j];
-            let distances = [...m.values()];
-            distances.sort((a, b) => a - b);
-            if (distances[0] === distances[1]) {
-                board[i][j] = '.';
-            } else {
-                let index = [...m.values()].indexOf(distances[0]);
-                board[i][j] = [...m.keys()][index];
-            }
-
-        }
-    }
-    return board;
-}
-
-let finites = (board) => {
-    let valids = new Set(board.reduce((acc, v) => acc.concat(v), []));
-    for (let i = 0; i < board.length; i++) {
-        // top to bottom
-        valids.delete(board[i][0]);
-        // console.log(`Delete ${board[i][0]}`);
-        valids.delete(board[i][board[0].length - 1]);
-    }
-    for (let j = 0; j < board[0].length; j++) {
-        // left to right
-        valids.delete(board[0][j]);
-        valids.delete(board[board.length - 1][j]);
-    }
-    return Array.from(valids);
-}
-
-
+const REGION_SIZE = 10000;
 let main = async () => {
     let inputs = await readInput();
     let [x, y] = findDimensions(inputs);
     // console.log(x, y);
     let board = markDistances(inputs, x, y);
-    board = closestCoordinates(board);
-    let valids = finites(board);
-    board = board.reduce((acc, v) => acc.concat(v), []);
-    board = board.filter(e => e !== '.');
-    board = board.filter(e => valids.indexOf(e) !== -1);
 
-    let m = new Map();
-    for (let valid of valids) {
-        m.set(valid, 0);
+    let regionSize = 0;
+    for (let i = 0; i <= x; i++) {
+        for (let j = 0; j <= y; j++) {
+            // <input, [distances]>
+            let sum = [...board[i][j].values()].reduce((acc, v) => acc + v, 0);
+            if (sum < REGION_SIZE) {
+                regionSize++;
+            }
+        }
     }
-
-    for (let point of board) {
-        m.set(point, m.get(point) + 1);
-    }
-
-    console.log(Math.max(...[...m.values()]));
-
+    console.log(regionSize);
 }
 
 main();
