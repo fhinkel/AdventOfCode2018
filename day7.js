@@ -1,16 +1,16 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    // let res = await fs.readFile('./input7.txt');
-    let res = await fs.readFile('./test_input2.txt');
+    let res = await fs.readFile('./input7.txt');
+    // let res = await fs.readFile('./test_input2.txt');
     let inputs = res.toString().split('\n');
     return inputs;
 }
 
 let main = async () => {
     let workers = [];
-    const NUMBER_OF_WORKERS = 2; // 5
-    const TASK_DELAY = 0; // 60
+    const NUMBER_OF_WORKERS = 5; // 5
+    const TASK_DELAY = 60; // 60
     for (let i = 0; i < NUMBER_OF_WORKERS; i++) {
         workers.push(0);
     }
@@ -81,14 +81,21 @@ let main = async () => {
 
         if (!potentialNextTask.length) {
             console.log(`No more tasks, lets wait for one to finish`);
-            let min = Math.min(...workers.filter(w => w !== 0 ));
+            let min = Math.min(...workers.filter(w => w !== 0));
             totalTime += min;
             workers = workers.map(w => {
-                if(w === 0 ) {
+                if (w === 0) {
                     return w;
                 }
                 return w - min;
             });
+        }
+
+        if (workers.indexOf(0) === -1) {
+            // Nobody is free
+            let shortest = Math.min(...workers);
+            totalTime += shortest;
+            workers = workers.map(w => w - shortest);
         }
 
         freeWorkers = workers.reduce(function (a, e, i) {
@@ -100,27 +107,23 @@ let main = async () => {
 
         for (let freeWorker of freeWorkers) {
             let l = tasksStarted.get(freeWorker);
-            if(!l) {
+            if (!l) {
                 continue;
             }
             console.log(`Task that was just finished: ${l}`);
-            if(l === 'B') {
+            if (l === 'B') {
                 console.log(taskOrders);
             }
-            
+
             // Remove l from all the prerequisites because we finished it.
             for (let [key, preq] of [...taskOrders.entries()]) {
-                // console.log(` ${key} and ${[...preq]}`);
-                for (let [index, task] of tasksStarted) {
-                    // console.log(`Delete from ${task}`)
-                    preq.delete(task);
-                }
+                preq.delete(l);
                 if (preq.size == 0) {
                     potentialNextTask.push(key);
                     taskOrders.delete(key);
                 }
             }
-            if(l === 'B') {
+            if (l === 'B') {
                 console.log(taskOrders);
             }
         }
