@@ -1,8 +1,8 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    // let res = await fs.readFile('./input9.txt');
-    let res = await fs.readFile('./testInput.txt');
+    let res = await fs.readFile('./input9.txt');
+    // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
     return inputs.filter(s => s[0] !== '/');
 }
@@ -11,6 +11,7 @@ let readInput = async () => {
 
 
 let play = (n, marble) => {
+    marble = marble * 100;
     let scoreboard = [];
     for (let i = 0; i < n; i++) {
         scoreboard[i] = 0;
@@ -52,8 +53,8 @@ let play = (n, marble) => {
             removed.left.right = current;
             current.left = removed.left;
             scoreboard[player] += removed.value;
-            console.log(`Player ${player} scored ${nextMarble}.`);
-            console.log(`They removed ${removed.value} and ${current.value} is current`);
+            // console.log(`Player ${player} scored ${nextMarble}.`);
+            // console.log(`They removed ${removed.value} and ${current.value} is current`);
         }
         player = (player + 1) % n;
         nextMarble++;
@@ -66,7 +67,7 @@ let main = async () => {
     for (let line of inputs) {
         // 9 players; last marble is worth 25 points: high score is 32
         line = line.split(' ');
-        let [numberOfPlayers, lastMarble] = [line[0], line[6]];
+        let [numberOfPlayers, lastMarble] = [line[0], line[6]].map(Number);
         console.log(`We are playing with ${numberOfPlayers} players and ${lastMarble} marbles.`);
         let scoreboard = play(numberOfPlayers, lastMarble); // should be 32
         console.log(Math.max(...scoreboard));
