@@ -43,7 +43,7 @@ let boardDimensions = (inputs) => {
 
 let printBoard = (board) => {
     for (let i = 0; i < board.length; i++) {
-        console.log(board[i].join(''));
+        console.log(board[i].map(a=>a[0]).join(''));
     }
     console.log();
 }
@@ -60,14 +60,16 @@ let main = async () => {
         // console.log(row.join(''));
         board[i] = row;
     }
-    printBoard(board);
 
     for (let line of inputs) {
-        let [x, y] = parseInputLine(line);
+        let [x, y, dx, dy] = parseInputLine(line);
         console.log(`${x} - ${minX} = ${x-minX}`);
-        board[y - minY] [x - minX]= '#';
+        board[y - minY] [x - minX]= ['#', [[dx,dy]]];
     }
     printBoard(board);
+
+
+
 
 
 
