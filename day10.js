@@ -53,24 +53,22 @@ let main = async () => {
     let [minX, maxX, minY, maxY] = boardDimensions(inputs);
 
     let xLength = maxX - minX + 1;
-    let xDiff = minX;
     let yLength = maxY - minY + 1;
-    let yDiff = minY;
     let board = Array(yLength).fill([]);
     for (let i = 0; i < board.length; i++) {
         let row = Array(xLength).fill('.')
         // console.log(row.join(''));
         board[i] = row;
     }
-    // printBoard(board);
+    printBoard(board);
 
     for (let line of inputs) {
         let [x, y] = parseInputLine(line);
-        printBoard(board);
-        board[x - minX][y - minY] = '#';
+        console.log(`${x} - ${minX} = ${x-minX}`);
+        board[y - minY] [x - minX]= '#';
     }
+    printBoard(board);
 
-    console.log(board);
 
 
 }
