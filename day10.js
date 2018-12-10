@@ -62,11 +62,11 @@ let main = async () => {
         // console.log(row.join(''));
         board[i] = row;
     }
-    printBoard(board);
+    // printBoard(board);
 
     for (let line of inputs) {
         let [x, y] = parseInputLine(line);
-        // printBoard(board);
+        printBoard(board);
         board[x - minX][y - minY] = '#';
     }
 
