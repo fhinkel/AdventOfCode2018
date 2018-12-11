@@ -1,8 +1,8 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    // let res = await fs.readFile('./input10.txt');
-    let res = await fs.readFile('./testInput.txt');
+    let res = await fs.readFile('./input10.txt');
+    // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
     return inputs;
 }
@@ -36,9 +36,8 @@ let boardDimensions = (inputs) => {
         }
 
     }
-    console.log(`Board form ${minX} to ${maxX} left to right`)
-    console.log(`And from ${minY} to ${maxY} top to bottom`)
-    // return [minX, maxX, minY, maxY];
+    // console.log(`Board form ${minX} to ${maxX} left to right`)
+    // console.log(`And from ${minY} to ${maxY} top to bottom`)
     let size = (maxX - minX) * (maxY - minY);
     return size;
 
@@ -67,7 +66,7 @@ let printBoard = (inputs) => {
         }
     }
 
-    console.log(min, max);
+    // console.log(min, max);
 
     for (let y of ys) {
         let row = '';
@@ -95,7 +94,9 @@ let main = async () => {
 
     let size = Number.MAX_SAFE_INTEGER;
     let newSize = size - 1;
+    let i = -1;
     while (size > newSize) {
+        i++;
         // printBoard(newInputs);
 
         inputs = newInputs;
@@ -108,9 +109,10 @@ let main = async () => {
         }
 
         newSize = boardDimensions(newInputs);
-        console.log(newSize)
+        // console.log(newSize)
     }
     printBoard(inputs);
+    console.log(i);
 
 
 }
