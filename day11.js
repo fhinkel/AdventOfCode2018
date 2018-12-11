@@ -30,24 +30,57 @@ let main = async () => {
         }
     }
 
+    let subSums = [];
+    for (let i = 1; i <= GRIDSIZE; i++) {
+        subSums[i] = [];  // Add one row
+        for (let j = 1; j <= GRIDSIZE; j++) {
+            subSums[i][j] = b[i][j];
+        }
+    }
+
+
     let max = Number.MIN_SAFE_INTEGER;
     let bestX;
     let bestY;
     let sum;
-    for (let i = 1; i <= GRIDSIZE - 2; i++) {
-        for (let j = 1; j <= GRIDSIZE - 2; j++) {
-            sum = b[i][j] + b[i + 1][j] + b[i + 2][j] +
-                b[i][j + 1] + b[i + 1][j + 1] + b[i + 2][j + 1] +
-                b[i][j + 2] + b[i + 1][j + 2] + b[i + 2][j + 2];
-            if (sum > max) {
-                max = sum;
-                bestX = i;
-                bestY = j;
+    let bestSize = 1;
+
+
+    // largest sum 1D
+    // 
+    for (let size = 1; size <= GRIDSIZE; size++) {
+        for (let i = 1; i <= GRIDSIZE - size + 1; i++) {
+            for (let j = 1; j <= GRIDSIZE - size + 1; j++) {
+                sum = subSums[i][j];
+                for (let h = 0; h < size; h++) {
+                    // if(!b[i+h]) {
+                    //     console.log(i,h,i+h)
+                    // }
+                    // if(!b[i+size]) {
+                    //     console.log(i, size, i+size)
+                    // }
+                    sum = subSums[i][j] + b[i + h][j + size - 1] + b[i + size - 1][j + h];
+                }
+                if (sum > max) {
+                    max = sum;
+                    bestX = i;
+                    bestY = j;
+                }
+                subSums[i][j] = sum;
             }
         }
     }
 
-    console.log(bestX, bestY); // 33,45 // 21,61
+    console.log(bestX, bestY, bestSize); // 33,45 // 21,61
 }
+
+
+// let largestSum = () => {
+//     let a = [3,4,-2,-6,-7, 12,13]
+
+
+// }
+
+
 
 main();
