@@ -7,7 +7,7 @@ let powerLevel = (x, y, serialNumber) => {
 
 let main = async () => {
     const GRIDSIZE = 300;
-    let serialNumber = 42; // 7672
+    let serialNumber = 7672;
     // 3,5 serial number 8 => 4
     // 122,79, grid serial number 57: power level -5.
     // Fuel cell at 217,196, grid serial number 39: power level  0.
