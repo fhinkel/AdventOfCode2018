@@ -21,7 +21,7 @@ let boardDimensions = (inputs) => {
     let maxY = Number.MIN_SAFE_INTEGER;
     let minY = Number.MAX_SAFE_INTEGER;
     for (let line of inputs) {
-        let [x, y, dx, dy] = parseInputLine(line);
+        let [x, y] = line;
         if (x > maxX) {
             maxX = x;
         }
@@ -38,64 +38,77 @@ let boardDimensions = (inputs) => {
     }
     console.log(`Board form ${minX} to ${maxX} left to right`)
     console.log(`And from ${minY} to ${maxY} top to bottom`)
-    return [minX, maxX, minY, maxY];
+    // return [minX, maxX, minY, maxY];
+    let size = (maxX - minX) * (maxY - minY);
+    return size;
+
 }
 
-let printBoard = (board) => {
-    for (let i = 0; i < board.length; i++) {
-        console.log(board[i].map(a => a[0]).join(''));
-    }
-    console.log();
-}
-
-let tick = (board) => {
-    let newBoard = Array(board.length).fill([]);
-    for (let i = 0; i < board.length; i++) {
-        let row = Array(board[0].length).fill('.')
-        newBoard[i] = row;
+let printBoard = (inputs) => {
+    // <y, [x] >
+    let reversePoints = new Map();
+    for (let line of inputs) {
+        let [x, y] = line;
+        reversePoints.set(y, (reversePoints.get(y) || new Set()).add(x))
     }
 
-    for (let i = 0; i < board.length; i++) {
-        for (let j = 0; j < board.length; j++) {
-            if (board[i][j] !== '.') {
-                // We found a star.
-                let velocities = board[i][j][1];
-                for (let [dx, dy] of velocities) {
-                    // console.log(`${i} + ${dy}`);
-                    let oldVelocities = newBoard[i + dy][j + dx][1] || [];
-                    newBoard[i + dy][j + dx] = ['#', [...oldVelocities, [dx, dy]]];
-                }
-            }
+    let ys = [...reversePoints.keys()];
+    ys.sort((a, b) => a - b);
+
+    let max = Number.MIN_SAFE_INTEGER;
+    let min = Number.MAX_SAFE_INTEGER;
+    for (let y of ys) {
+        let xs = reversePoints.get(y);
+        if (Math.min(...xs) < min) {
+            min = Math.min(...xs);
+        }
+        if (Math.max(...xs) > max) {
+            max = Math.max(...xs);
         }
     }
-    return newBoard;
+
+    console.log(min, max);
+
+    for (let y of ys) {
+        let row = '';
+        let xs = reversePoints.get(y);
+        for (let i = min; i < max; i++) {
+            if (xs.has(i)) {
+                row += '#';
+            } else {
+                row += '.';
+            }
+        }
+        console.log(row);
+    }
 }
+
 
 let main = async () => {
     let inputs = (await readInput());
-    let [minX, maxX, minY, maxY] = boardDimensions(inputs);
 
-    let xLength = maxX - minX + 1;
-    let yLength = maxY - minY + 1;
-    let board = Array(yLength).fill([]);
-    for (let i = 0; i < board.length; i++) {
-        let row = Array(xLength).fill('.')
-        // console.log(row.join(''));
-        board[i] = row;
-    }
+    let newInputs = [];
 
     for (let line of inputs) {
-        let [x, y, dx, dy] = parseInputLine(line);
-        // console.log(`${x} - ${minX} = ${x-minX}`);
-        board[y - minY][x - minX] = ['#', [[dx, dy]]];
+        newInputs.push(parseInputLine(line));
     }
-    printBoard(board);
 
-    board = tick(board);
-    board = tick(board);
-    board = tick(board);
+    let size = Number.MAX_SAFE_INTEGER;
+    let newSize = size - 1;
+    while (size > newSize) {
+        inputs = newInputs;
+        newInputs = [];
+        size = newSize;
+        for (let a of inputs) {
+            let [x, y, dx, dy] = a;
+            let newStar = [x + dx, y + dy, dx, dy];
+            newInputs.push(newStar);
+        }
 
-    printBoard(board);
+        newSize = boardDimensions(newInputs);
+        console.log(newSize)
+    }
+    printBoard(newInputs);
 
 
 }
