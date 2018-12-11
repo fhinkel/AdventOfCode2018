@@ -43,9 +43,32 @@ let boardDimensions = (inputs) => {
 
 let printBoard = (board) => {
     for (let i = 0; i < board.length; i++) {
-        console.log(board[i].map(a=>a[0]).join(''));
+        console.log(board[i].map(a => a[0]).join(''));
     }
     console.log();
+}
+
+let tick = (board) => {
+    let newBoard = Array(board.length).fill([]);
+    for (let i = 0; i < board.length; i++) {
+        let row = Array(board[0].length).fill('.')
+        newBoard[i] = row;
+    }
+
+    for (let i = 0; i < board.length; i++) {
+        for (let j = 0; j < board.length; j++) {
+            if (board[i][j] !== '.') {
+                // We found a star.
+                let velocities = board[i][j][1];
+                for (let [dx, dy] of velocities) {
+                    // console.log(`${i} + ${dy}`);
+                    let oldVelocities = newBoard[i + dy][j + dx][1] || [];
+                    newBoard[i + dy][j + dx] = ['#', [...oldVelocities, [dx, dy]]];
+                }
+            }
+        }
+    }
+    return newBoard;
 }
 
 let main = async () => {
@@ -63,14 +86,16 @@ let main = async () => {
 
     for (let line of inputs) {
         let [x, y, dx, dy] = parseInputLine(line);
-        console.log(`${x} - ${minX} = ${x-minX}`);
-        board[y - minY] [x - minX]= ['#', [[dx,dy]]];
+        // console.log(`${x} - ${minX} = ${x-minX}`);
+        board[y - minY][x - minX] = ['#', [[dx, dy]]];
     }
     printBoard(board);
 
+    board = tick(board);
+    board = tick(board);
+    board = tick(board);
 
-
-
+    printBoard(board);
 
 
 }
