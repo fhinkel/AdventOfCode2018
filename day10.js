@@ -36,11 +36,7 @@ let boardDimensions = (inputs) => {
         }
 
     }
-    // console.log(`Board form ${minX} to ${maxX} left to right`)
-    // console.log(`And from ${minY} to ${maxY} top to bottom`)
-    let size = (maxX - minX) * (maxY - minY);
-    return size;
-
+    return (maxX - minX) * (maxY - minY);
 }
 
 let printBoard = (inputs) => {
@@ -65,8 +61,6 @@ let printBoard = (inputs) => {
             max = Math.max(...xs);
         }
     }
-
-    // console.log(min, max);
 
     for (let y of ys) {
         let row = '';
@@ -109,7 +103,6 @@ let main = async () => {
         }
 
         newSize = boardDimensions(newInputs);
-        // console.log(newSize)
     }
     printBoard(inputs);
     console.log(i);
