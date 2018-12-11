@@ -72,7 +72,7 @@ let printBoard = (inputs) => {
     for (let y of ys) {
         let row = '';
         let xs = reversePoints.get(y);
-        for (let i = min; i < max; i++) {
+        for (let i = min; i <= max; i++) {
             if (xs.has(i)) {
                 row += '#';
             } else {
@@ -96,6 +96,8 @@ let main = async () => {
     let size = Number.MAX_SAFE_INTEGER;
     let newSize = size - 1;
     while (size > newSize) {
+        // printBoard(newInputs);
+
         inputs = newInputs;
         newInputs = [];
         size = newSize;
@@ -108,7 +110,7 @@ let main = async () => {
         newSize = boardDimensions(newInputs);
         console.log(newSize)
     }
-    printBoard(newInputs);
+    printBoard(inputs);
 
 
 }
