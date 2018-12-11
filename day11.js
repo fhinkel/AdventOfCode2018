@@ -7,16 +7,7 @@ let powerLevel = (x, y, serialNumber) => {
 
 let main = async () => {
     const GRIDSIZE = 300;
-    let serialNumber = 7672;
-    // 3,5 serial number 8 => 4
-    // 122,79, grid serial number 57: power level -5.
-    // Fuel cell at 217,196, grid serial number 39: power level  0.
-    // Fuel cell at 101,153, grid serial number 71: power level  4.
-
-    console.log(`${3}, ${5} = ${powerLevel(3, 5, 8)} should be 4`)
-    console.log(`${122}, ${79} = ${powerLevel(122, 79, 57)} should be -5`)
-    console.log(`${217}, ${196} = ${powerLevel(217, 196, 39)} should be 0`)
-    console.log(`${101}, ${153} = ${powerLevel(101, 153, 71)} should be 4`)
+    let serialNumber = 18 // 7672;
 
     let b = [];
     for (let i = 1; i <= GRIDSIZE; i++) {
@@ -46,12 +37,10 @@ let main = async () => {
     let bestSize = 1;
 
 
-    // largest sum 1D
-    // 
     for (let size = 1; size <= GRIDSIZE; size++) {
         for (let i = 1; i <= GRIDSIZE - size + 1; i++) {
             for (let j = 1; j <= GRIDSIZE - size + 1; j++) {
-                sum = subSums[i][j];
+                let sum = subSums[i][j];
                 for (let h = 0; h < size; h++) {
                     // if(!b[i+h]) {
                     //     console.log(i,h,i+h)
@@ -59,28 +48,22 @@ let main = async () => {
                     // if(!b[i+size]) {
                     //     console.log(i, size, i+size)
                     // }
-                    sum = subSums[i][j] + b[i + h][j + size - 1] + b[i + size - 1][j + h];
+                    sum += b[i + h][j + size - 1] + b[i + size - 1][j + h];
                 }
+                sum -= b[i+size-1][j+size-1]; // delete right,lower corner
                 if (sum > max) {
                     max = sum;
                     bestX = i;
                     bestY = j;
+                    bestSize = size;
                 }
                 subSums[i][j] = sum;
             }
         }
     }
 
-    console.log(bestX, bestY, bestSize); // 33,45 // 21,61
+    console.log(bestX, bestY, bestSize); // 90,269, 16 // 21,61
 }
-
-
-// let largestSum = () => {
-//     let a = [3,4,-2,-6,-7, 12,13]
-
-
-// }
-
 
 
 main();
