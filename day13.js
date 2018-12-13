@@ -1,8 +1,8 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    // let res = await fs.readFile('./input13.txt');
-    let res = await fs.readFile('./testInput.txt');
+    let res = await fs.readFile('./input13.txt');
+    // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
     return inputs
 }
@@ -180,9 +180,7 @@ let main = async () => {
     });
 
     console.log(orderedCarts);
-    let i = 15;
-    while (i > 0) {
-        i--;
+    while (true) {
         for (let cart of orderedCarts) {
             cart = move(cart, grid);
             let [x, y] = collision(orderedCarts);
