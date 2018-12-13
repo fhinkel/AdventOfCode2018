@@ -158,9 +158,9 @@ let collision = (carts) => {
         let index = carts.findIndex((cart) => {
             return cart.x === currentCart.x && cart.y === currentCart.y;
         });
-        if (index !==i ) {
+        if (index !== i) {
             return [currentCart.x, currentCart.y]
-        } 
+        }
     }
     return [x, y];
 }
@@ -186,8 +186,14 @@ let main = async () => {
             let [x, y] = collision(orderedCarts);
             if (x > -1) {
                 console.log(`Crash! ${x}, ${y}`);
-                return;
+                orderedCarts = orderedCarts.filter(cart => {
+                    return cart.x !== x || cart.y !== y;
+                })
             }
+        }
+        if (orderedCarts.length === 1) {
+            console.log(orderedCarts[0].x, orderedCarts[0].y);
+            return;
         }
         orderedCarts.sort((c1, c2) => {
             if (c1.y !== c2.y) {
