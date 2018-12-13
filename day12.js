@@ -8,7 +8,7 @@ let readInput = async () => {
 }
 
 let nextGeneration = (initialState, rules) => {
-    initialState = '....' + initialState + '....';
+    initialState = '..' + initialState + '....';
     next = '';
 
     for (let i = 2; i < initialState.length - 2; i++) {
@@ -21,6 +21,7 @@ let nextGeneration = (initialState, rules) => {
 }
 
 let main = async () => {
+    ``
     let inputs = (await readInput());
     //     initial state: #..#.#..##......###...###
     //
@@ -38,7 +39,6 @@ let main = async () => {
         rules.set(old, next || '.');
     }
 
-    let next;
     let left = 0;
     let padding = '';
     for (let i = 0; i < 2 * 20; i++) {
@@ -46,22 +46,27 @@ let main = async () => {
     }
     console.log(initialState.lenght);
     let marker = '';
-    for(let i = - (padding.length); i < (initialState + padding).length; i++ ) {
-        let s = ((i % 10) + 10)%10 ;
+    for (let i = 0; i < (initialState + padding).length; i++) {
+        let s = ((i % 10) + 10) % 10;
         marker = marker + s;
     }
     console.log(marker);
-    console.log(padding + initialState + padding);
+    initialState = '.' + initialState;
+    let next = initialState;
+    console.log(initialState + padding);
     for (let i = 0; i < 20; i++) {
         left -= 2;
-        next = nextGeneration(initialState, rules);
+        next = nextGeneration(next, rules);
         padding = padding.slice(0, padding.length - 2);
-        console.log(padding + next + padding);
-        initialState = next;
+        console.log(next);
+        if (initialState === next) {
+            console.log(`We got stability ${i}`);
+        }
+        // console.log( next + padding);
     }
 
     let sum = 0;
-    let index = left;
+    let index = -1;
     for (let i = 0; i < next.length; i++) {
 
         if (next[i] === '#') {
@@ -71,6 +76,10 @@ let main = async () => {
     }
 
     console.log(sum)
+
+    // after 200 iterations, sum is 11891
+
+    let FIVE_BILLION = 5000000000;
 }
 
 main();
