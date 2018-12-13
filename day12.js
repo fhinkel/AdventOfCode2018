@@ -44,42 +44,44 @@ let main = async () => {
     for (let i = 0; i < 2 * 20; i++) {
         padding += '.';
     }
-    console.log(initialState.lenght);
-    let marker = '';
-    for (let i = 0; i < (initialState + padding).length; i++) {
-        let s = ((i % 10) + 10) % 10;
-        marker = marker + s;
-    }
-    console.log(marker);
+
     initialState = '.' + initialState;
     let next = initialState;
-    console.log(initialState + padding);
-    for (let i = 0; i < 20; i++) {
+
+    let prevPotArea = initialState.slice(initialState.indexOf('#'), initialState.lastIndexOf('#'));
+    console.log(initialState);
+    let i = 1;
+    for (; i < 300; i++) {
         left -= 2;
         next = nextGeneration(next, rules);
         padding = padding.slice(0, padding.length - 2);
-        console.log(next);
-        if (initialState === next) {
+        let potArea = next.slice(next.indexOf('#'), next.lastIndexOf('#')); 
+        if (prevPotArea === potArea) {
             console.log(`We got stability ${i}`);
+            break;
         }
+        prevPotArea = potArea;
         // console.log( next + padding);
     }
 
+
+
     let sum = 0;
+    let numberOfPlants = 0;
     let index = -1;
     for (let i = 0; i < next.length; i++) {
-
         if (next[i] === '#') {
             sum += index;
+            numberOfPlants++
         }
         index++;
     }
+    
+    let LARGE = 120;
+    // let LARGE = 50000000000;
+    remaningIterations = LARGE - i;
 
-    console.log(sum)
-
-    // after 200 iterations, sum is 11891
-
-    let FIVE_BILLION = 5000000000;
+    console.log(numberOfPlants*remaningIterations + sum);
 }
 
 main();
