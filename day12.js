@@ -1,8 +1,8 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    // let res = await fs.readFile('./input12.txt');
-    let res = await fs.readFile('./testInput.txt');
+    let res = await fs.readFile('./input12.txt');
+    // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
     return inputs
 }
@@ -44,12 +44,18 @@ let main = async () => {
     for (let i = 0; i < 2 * 20; i++) {
         padding += '.';
     }
-
+    console.log(initialState.lenght);
+    let marker = '';
+    for(let i = - (padding.length); i < (initialState + padding).length; i++ ) {
+        let s = ((i % 10) + 10)%10 ;
+        marker = marker + s;
+    }
+    console.log(marker);
     console.log(padding + initialState + padding);
     for (let i = 0; i < 20; i++) {
         left -= 2;
         next = nextGeneration(initialState, rules);
-        padding = padding.slice(2, padding.length - 2);
+        padding = padding.slice(0, padding.length - 2);
         console.log(padding + next + padding);
         initialState = next;
     }
