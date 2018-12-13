@@ -55,7 +55,7 @@ let main = async () => {
         left -= 2;
         next = nextGeneration(next, rules);
         padding = padding.slice(0, padding.length - 2);
-        let potArea = next.slice(next.indexOf('#'), next.lastIndexOf('#')); 
+        let potArea = next.slice(next.indexOf('#'), next.lastIndexOf('#'));
         if (prevPotArea === potArea) {
             console.log(`We got stability ${i}`);
             break;
@@ -76,12 +76,12 @@ let main = async () => {
         }
         index++;
     }
-    
-    let LARGE = 120;
-    // let LARGE = 50000000000;
+
+    // let LARGE = 120;
+    let LARGE = 50000000000;
     remaningIterations = LARGE - i;
 
-    console.log(numberOfPlants*remaningIterations + sum);
+    console.log(numberOfPlants * remaningIterations + sum);
 }
 
 main();
