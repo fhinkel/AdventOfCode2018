@@ -34,9 +34,7 @@ let initialize = (inputs) => {
     return [board, elfs, goblins];
 }
 
-let main = async () => {
-    let inputs = (await readInput());
-    let [board, elfs, goblins] = initialize(inputs);
+let sortUnits = (elfs, goblins) => {
     let units = [...elfs.values(), ...goblins.values()];
 
     console.log(units);
@@ -47,6 +45,13 @@ let main = async () => {
         return u1.x - u2.x;
     });
 
+    return units;
+}
+
+let main = async () => {
+    let inputs = (await readInput());
+    let [board, elfs, goblins] = initialize(inputs);
+    let units = sortUnits(elfs, goblins);
     console.log(units);
 
 }
