@@ -169,7 +169,6 @@ let main = async () => {
     let inputs = (await readInput());
     let [board, elfs, goblins] = initialize(inputs);
     let units = sortUnits(elfs, goblins);
-    // console.log(units);
 
     let i = 3;
 
