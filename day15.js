@@ -27,10 +27,6 @@ let initialize = (inputs) => {
         }
     }
 
-    // console.log(board);
-    // console.log(elfs);
-    // console.log(goblins);
-
     return [board, elfs, goblins];
 }
 
@@ -132,7 +128,7 @@ let distance = (src, target, board) => {
     let newReachable = [];
 
     let dist = 1;
-    while (1 < board.length * board[0].length) {
+    while (dist < board.length * board[0].length) {
         for (let pos of reachable) {
             let firstStep = [pos[2], pos[3]];
             let [x, y] = pos;
@@ -177,7 +173,7 @@ let distance = (src, target, board) => {
         dist++;
     }
 
-    console.log(`didnt find anyting: ${src.x}, ${src.y}`);
+    // console.log(`didnt find anyting: ${src.x}, ${src.y}`);
     return [Number.MAX_SAFE_INTEGER, []];
 }
 
@@ -187,16 +183,16 @@ let findInRangeField = (unit, opponents, board) => {
     for (let oppenent of opponents) {
         let [ox, oy] = [oppenent.x, oppenent.y];
 
-        if (oy - 1 >= 0 && board[ox][oy - 1] === '.') {
+        if (oy - 1 >= 0 && (board[ox][oy - 1] === '.' || (ox === unit.x && oy - 1 === unit.y))) {
             inRange.push([ox, oy - 1]);
         }
-        if (ox - 1 >= 0 && board[ox - 1][oy] === '.') {
+        if (ox - 1 >= 0 && (board[ox - 1][oy] === '.' || (ox - 1 === unit.x && oy === unit.y))) {
             inRange.push([ox - 1, oy]);
         }
-        if (ox + 1 < board.length && board[ox + 1][oy] === '.') {
+        if (ox + 1 < board.length && (board[ox + 1][oy] === '.' || (ox + 1 === unit.x && oy === unit.y))) {
             inRange.push([ox + 1, oy]);
         }
-        if (oy + 1 < board[0].length && board[ox][oy + 1] === '.') {
+        if (oy + 1 < board[0].length && (board[ox][oy + 1] === '.' || (ox === unit.x && oy + 1 === unit.y))) {
             inRange.push([ox, oy + 1]);
         }
     }
@@ -208,20 +204,17 @@ let findInRangeField = (unit, opponents, board) => {
         return a[1] - b[1];
     });
 
-    let rightRightStep;
+    let rightStep;
     let min = Number.MAX_SAFE_INTEGER;
-    if (unit.x === 4 && unit.y === 1) {
-        console.log(inRange)
-    }
     for (let range of inRange) {
         let [d, firstStep] = distance(unit, range, board);
         if (d < min) {
             min = d;
-            rightRightStep = firstStep;
+            rightStep = firstStep;
         }
     }
 
-    return rightRightStep;
+    return rightStep;
 }
 
 let print = (board) => {
@@ -240,7 +233,7 @@ let main = async () => {
     let [board, elfs, goblins] = initialize(inputs);
     let units = sortUnits(elfs, goblins);
 
-    let i = 3;
+    let i = 5;
 
     while (i > 0) {
         for (let unit of units) {
@@ -258,11 +251,12 @@ let main = async () => {
             let firstStep = findInRangeField(unit, opponents, board);
             if (firstStep) {
                 if (firstStep.length > 0) {
-                    // console.log(firstStep);
                     board[unit.x][unit.y] = '.';
                     [unit.x, unit.y] = firstStep;
                     console.log(`moved to ${unit.x}, ${unit.y}`);
                     board[unit.x][unit.y] = unit.u;
+                } else {
+                    console.log(`Standing still ${unit.x}, ${unit.y}`);
                 }
             } else {
                 console.log(`No more moves for ${unit.x}, ${unit.y}`);
