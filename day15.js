@@ -34,10 +34,30 @@ let initialize = (inputs) => {
     return [board, elfs, goblins];
 }
 
+let initializeEG = (board) => {
+    let elfs = new Set();
+    let goblins = new Set();
+
+    for (let i = 0; i < board.length; i++) {
+        for (let j = 0; j < board[0].length; j++) {
+            if (board[i][j] === 'E') {
+                let elf = { x: j, y: i, u: 'E', hitPoints: board[i][j].hitPoints };
+                elfs.add(elf);
+            }
+            if (board[i][j] === 'G') {
+                let goblin = { x: j, y: i, u: 'G', hitPoints: board[i][j].hitPoints };
+                goblins.add(goblin);
+            }
+        }
+    }
+
+    return [elfs, goblins];
+}
+
+
 let sortUnits = (elfs, goblins) => {
     let units = [...elfs.values(), ...goblins.values()];
 
-    console.log(units);
     units.sort((u1, u2) => {
         if (u1.y !== u2.y) {
             return u1.y - u2.y;
@@ -78,7 +98,7 @@ let search = (x, y, letter, board) => {
             [x, y] = pos;
             res = findDirectOppononent(x, y, letter, board);
             if (res) {
-                console.log(`[${x}, ${y}] has direct oppenent ${res}`);
+                // console.log(`[${x}, ${y}] has direct oppenent ${res}`);
                 return res;
             }
             if (y - 1 >= 0 && board[x][y - 1] === '.') {
@@ -110,7 +130,7 @@ let move = (unit, opponents, board) => {
     
     if (target) {
         if (target[0] !== x || target[1] !== y) {
-            console.log(`${x},${y} has target ${target}`);
+            // console.log(`${x},${y} has target ${target}`);
             if (target[1] < y) {
                 // move up
                 return [x, y - 1];
@@ -150,29 +170,33 @@ let main = async () => {
     let units = sortUnits(elfs, goblins);
     // console.log(units);
 
-    for (let unit of units) {
-        let opponents = elfs;
-        if (unit.u === 'E') {
-            opponents = goblins;
-        }
+    let i = 3;
 
-        if (opponents.length === 0) {
-            // No more opponents
-            return;
+    while(i > 0) {
+        for (let unit of units) {
+            let opponents = elfs;
+            if (unit.u === 'E') {
+                opponents = goblins;
+            }
+            
+            if (opponents.length === 0) {
+                // No more opponents
+                return;
+            }
+            
+            let res = move(unit, opponents, board);
+            
+            if (res) {
+                board[unit.x][unit.y] = '.';
+                [unit.x, unit.y] = res;
+                board[unit.x][unit.y] = unit.u;
+            }
         }
-
-        let res = move(unit, opponents, board);
-        console.log(`The result ${res}!`);
-
-        if (res) {
-            board[unit.x][unit.y] = '.';
-            [unit.x, unit.y] = res;
-            console.log(`We moved ${unit}!`);
-            board[unit.x][unit.y] = unit.u;
-        }
+        print(board);
+        [elfs, goblins] = initializeEG(board);
+        units = sortUnits(elfs, goblins);
+        i--;
     }
-    print(board);
-
 }
 
 
