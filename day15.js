@@ -38,14 +38,14 @@ let initializeEG = (board) => {
     let elfs = new Set();
     let goblins = new Set();
 
-    for (let i = 0; i < board.length; i++) {
-        for (let j = 0; j < board[0].length; j++) {
+    for (let i = 0; i < board.length; i++) { // left to right
+        for (let j = 0; j < board[0].length; j++) { // top to bottom
             if (board[i][j] === 'E') {
-                let elf = { x: j, y: i, u: 'E', hitPoints: board[i][j].hitPoints };
+                let elf = { x: i, y: j, u: 'E', hitPoints: board[i][j].hitPoints };
                 elfs.add(elf);
             }
             if (board[i][j] === 'G') {
-                let goblin = { x: j, y: i, u: 'G', hitPoints: board[i][j].hitPoints };
+                let goblin = { x: i, y: j, u: 'G', hitPoints: board[i][j].hitPoints };
                 goblins.add(goblin);
             }
         }
@@ -91,7 +91,7 @@ let search = (x, y, letter, board) => {
     let reachable = [[x, y]];
     let newReachable = [];
 
-    let max = Math.max(board.length, board[0].length);
+    let max = board.length * board[0].length;
     // console.log(`Searching at most ${max} times`);
     while (max) {
         for (let pos of reachable) {
@@ -127,31 +127,31 @@ let move = (unit, opponents, board) => {
     let opponentLetter = opponent.u;
 
     let target = search(x, y, opponentLetter, board);
-    
-    if (target) {
-        if (target[0] !== x || target[1] !== y) {
-            
-            // console.log(`${x},${y} has target ${target}`);
-            if (target[1] < y && board[x][y-1] === '.') {
-                // move up
-                return [x, y - 1];
-            }
-            if (target[0] < x && board[x-1][y] === '.') {
-                // move left
-                return [x - 1, y];
-            }
-            if (target[0] > x && board[x+1][y] === '.') {
-                // move right
-                return [x + 1, y];
-            }
-            if (target[1] > y && board[x][y+1] === '.') {
-                // move down
-                return [x, y + 1];
-            }
 
-    
+    if (!target) {
+        return false;
+    }
+    if (target[0] !== x || target[1] !== y) {
+        // console.log(`${x},${y} has target ${target}`);
+        if (target[1] < y && board[x][y - 1] === '.') {
+            // move up
+            return [x, y - 1];
+        }
+        if (target[0] < x && board[x - 1][y] === '.') {
+            // move left
+            return [x - 1, y];
+        }
+        if (target[0] > x && board[x + 1][y] === '.') {
+            // move right
+            return [x + 1, y];
+        }
+        if (target[1] > y && board[x][y + 1] === '.') {
+            // move down
+            return [x, y + 1];
         }
     }
+    return[x, y];
+
 }
 
 let print = (board) => {
@@ -172,23 +172,24 @@ let main = async () => {
 
     let i = 3;
 
-    while(i > 0) {
+    while (i > 0) {
         for (let unit of units) {
             let opponents = elfs;
             if (unit.u === 'E') {
                 opponents = goblins;
             }
-            
+
             if (opponents.length === 0) {
                 // No more opponents
                 return;
             }
-            
+
             let res = move(unit, opponents, board);
-            
+
             if (res) {
                 board[unit.x][unit.y] = '.';
-                [unit.x, unit.y] = res;
+                unit.x = res[0];
+                unit.y = res[1];
                 board[unit.x][unit.y] = unit.u;
             }
         }
