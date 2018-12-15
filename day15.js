@@ -130,20 +130,21 @@ let move = (unit, opponents, board) => {
     
     if (target) {
         if (target[0] !== x || target[1] !== y) {
+            
             // console.log(`${x},${y} has target ${target}`);
-            if (target[1] < y) {
+            if (target[1] < y && board[x][y-1] === '.') {
                 // move up
                 return [x, y - 1];
             }
-            if (target[0] < x) {
+            if (target[0] < x && board[x-1][y] === '.') {
                 // move left
                 return [x - 1, y];
             }
-            if (target[0] > x) {
+            if (target[0] > x && board[x+1][y] === '.') {
                 // move right
                 return [x + 1, y];
             }
-            if (target[1] > y) {
+            if (target[1] > y && board[x][y+1] === '.') {
                 // move down
                 return [x, y + 1];
             }
