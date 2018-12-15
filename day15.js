@@ -124,24 +124,28 @@ let distance = (src, target, board) => {
     let sy = src.y;
     let tx = target[0];
     let ty = target[1];
-    if (sx === tx && sy && ty) {
+    if (sx === tx && sy === ty) {
         return [0, []];
     }
 
-    // what I can reach, where I came from
+    if (src.x === 4 && src.y === 1) {
+        console.log("tryint to hit", tx, ty)
+        // console.log(newReachable)
+    }
+
     let reachable = [[sx, sy]];
     let newReachable = [];
 
     let dist = 1;
-    // console.log(`Searching at most ${max} times`);
     while (1 < board.length * board[0].length) {
         for (let pos of reachable) {
             let firstStep = [pos[2], pos[3]];
             let [x, y] = pos;
-            console.log(pos);
             if (x === tx && y === ty) {
                 // reached the target
-                console.log('Target reached');
+                if (src.x === 4 && src.y === 1) {
+                    console.log(`Target reached ${dist} ${firstStep}`)
+                }
                 return [dist, firstStep];
             }
             if (y - 1 >= 0 && board[x][y - 1] === '.') {
@@ -161,7 +165,12 @@ let distance = (src, target, board) => {
                 newReachable.push([x, y + 1, ...firstStep]);
             }
         }
-        console.log(newReachable);
+
+        if (src.x === 4 && src.y === 1) {
+            console.log("tryint to hit", tx, ty)
+            // console.log(newReachable)
+        }
+
 
         newReachable.sort((a, b) => {
             if (a[1] === b[1]) {
@@ -182,16 +191,11 @@ let distance = (src, target, board) => {
         dist++;
     }
 
-
+    console.log(`didnt find anyting: ${src.x}, ${src.y}`);
     return [Number.MAX_SAFE_INTEGER, []];
 }
 
 let findInRangeField = (unit, opponents, board) => {
-    let [x, y] = [unit.x, unit.y];
-    let min = Number.MAX_SAFE_INTEGER;
-    let target;
-    let minPath;
-
     let inRange = [];
 
     for (let oppenent of opponents) {
@@ -211,8 +215,6 @@ let findInRangeField = (unit, opponents, board) => {
         }
     }
 
-
-
     inRange.filter(unique).sort((a, b) => {
         if (a[1] === b[1]) {
             return a[0] - b[0];
@@ -220,16 +222,23 @@ let findInRangeField = (unit, opponents, board) => {
         return a[1] - b[1];
     });
 
+    let rightRightStep;
+    let min = Number.MAX_SAFE_INTEGER;
+    if (unit.x === 4 && unit.y === 1) {
+        console.log(inRange)
+    }
     for (let range of inRange) {
-        let [d, path] = distance(unit, range, board);
+        if (unit.x === 4 && unit.y === 1) {
+            console.log(range)
+        }
+        let [d, firstStep] = distance(unit, range, board);
         if (d < min) {
             min = d;
-            target = range;
-            minPath = path;
+            rightRightStep = firstStep;
         }
     }
 
-    return [target, minPath];
+    return rightRightStep;
 }
 
 let print = (board) => {
@@ -251,8 +260,8 @@ let main = async () => {
     let i = 3;
 
     while (i > 0) {
-        console.log(units.length);
         for (let unit of units) {
+            console.log(unit)
             let opponents = elfs;
             if (unit.u === 'E') {
                 opponents = goblins;
@@ -263,14 +272,15 @@ let main = async () => {
                 return;
             }
 
-            let res = findInRangeField(unit, opponents, board);
-
-            if (res[0] < Number.MAX_SAFE_INTEGER) {
-                let [target, path] = res;
-                board[unit.x][unit.y] = '.'; ``
-                unit.x = path[0][0];
-                unit.y = path[0][1];
-                board[unit.x][unit.y] = unit.u;
+            let firstStep = findInRangeField(unit, opponents, board);
+            if (firstStep) {
+                if (firstStep.length > 0) {
+                    // console.log(firstStep);
+                    board[unit.x][unit.y] = '.';
+                    [unit.x, unit.y] = firstStep;
+                    console.log(`moved to ${unit.x}, ${unit.y}`);
+                    board[unit.x][unit.y] = unit.u;
+                }
             } else {
                 console.log(`No more moves for ${unit.x}, ${unit.y}`);
             }
