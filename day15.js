@@ -128,11 +128,6 @@ let distance = (src, target, board) => {
         return [0, []];
     }
 
-    if (src.x === 4 && src.y === 1) {
-        console.log("tryint to hit", tx, ty)
-        // console.log(newReachable)
-    }
-
     let reachable = [[sx, sy]];
     let newReachable = [];
 
@@ -143,9 +138,6 @@ let distance = (src, target, board) => {
             let [x, y] = pos;
             if (x === tx && y === ty) {
                 // reached the target
-                if (src.x === 4 && src.y === 1) {
-                    console.log(`Target reached ${dist} ${firstStep}`)
-                }
                 return [dist, firstStep];
             }
             if (y - 1 >= 0 && board[x][y - 1] === '.') {
@@ -165,12 +157,6 @@ let distance = (src, target, board) => {
                 newReachable.push([x, y + 1, ...firstStep]);
             }
         }
-
-        if (src.x === 4 && src.y === 1) {
-            console.log("tryint to hit", tx, ty)
-            // console.log(newReachable)
-        }
-
 
         newReachable.sort((a, b) => {
             if (a[1] === b[1]) {
@@ -228,9 +214,6 @@ let findInRangeField = (unit, opponents, board) => {
         console.log(inRange)
     }
     for (let range of inRange) {
-        if (unit.x === 4 && unit.y === 1) {
-            console.log(range)
-        }
         let [d, firstStep] = distance(unit, range, board);
         if (d < min) {
             min = d;
