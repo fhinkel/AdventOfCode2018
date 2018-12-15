@@ -7,32 +7,48 @@ let readInput = async () => {
     return inputs
 }
 
-let main = async () => {
-    let inputs = (await readInput());
-
-    let board = Array(inputs.length).fill().map(()=> []);
+let initialize = (inputs) => {
+    let board = Array(inputs.length).fill().map(() => []);
     let elfs = new Set();
     let goblins = new Set();
     // {i, j, hitPoints = 200 }
 
-    for(let i = 0; i < inputs.length; i++) {
-        for(let j = 0; j < inputs[0].length; j++) {
-            board[i][j] = inputs[i][j];
-            if(inputs[i][j] === 'E') {
-                let elf = {i, j, hitPoints : 200 };
+    for (let i = 0; i < inputs.length; i++) {
+        for (let j = 0; j < inputs[0].length; j++) {
+            board[j][i] = inputs[i][j];
+            if (inputs[i][j] === 'E') {
+                let elf = { x:j, y:i, u: 'E', hitPoints: 200 };
                 elfs.add(elf);
             }
-            if(inputs[i][j] === 'G') {
-                let goblin = {i, j, hitPoints : 200 };
+            if (inputs[i][j] === 'G') {
+                let goblin = { x:j, y:i, u: 'G', hitPoints: 200 };
                 goblins.add(goblin);
             }
         }
     }
 
-
     console.log(board);
     console.log(elfs);
     console.log(goblins);
+
+    return [board, elfs, goblins];
+}
+
+let main = async () => {
+    let inputs = (await readInput());
+    let [board, elfs, goblins] = initialize(inputs);
+    let units = [...elfs.values(), ...goblins.values()];
+
+    console.log(units);
+    units.sort((u1, u2) => {
+        if(u1.y !== u2.y) {
+            return u1.y - u2.y;
+        }
+        return u1.x - u2.x;
+    });
+
+    console.log(units);
+
 }
 
 
