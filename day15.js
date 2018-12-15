@@ -96,11 +96,6 @@ let search = (x, y, letter, board) => {
     while (max) {
         for (let pos of reachable) {
             [x, y] = pos;
-            res = findDirectOppononent(x, y, letter, board);
-            if (res) {
-                // console.log(`[${x}, ${y}] has direct oppenent ${res}`);
-                return res;
-            }
             if (y - 1 >= 0 && board[x][y - 1] === '.') {
                 newReachable.push([x, y - 1]);
             }
@@ -114,13 +109,80 @@ let search = (x, y, letter, board) => {
                 newReachable.push([x, y + 1]);
             }
         }
-        reachable = newReachable.slice();
+        reachable = newReachable.filter(unique);
         // console.log(reachable);
         max--;
     }
 }
 
-let distance = () => {
+let unique = (e, i, a) => {
+    return a.findIndex(el => el[0] === e[0] && el[1] === e[1]) === i;
+}
+
+let distance = (src, target, board) => {
+    let sx = src.x;
+    let sy = src.y;
+    let tx = target[0];
+    let ty = target[1];
+    if (sx === tx && sy && ty) {
+        return [0, []];
+    }
+
+    // what I can reach, where I came from
+    let reachable = [[sx, sy]];
+    let newReachable = [];
+
+    let dist = 1;
+    // console.log(`Searching at most ${max} times`);
+    while (1 < board.length * board[0].length) {
+        for (let pos of reachable) {
+            let firstStep = [pos[2], pos[3]];
+            let [x, y] = pos;
+            console.log(pos);
+            if (x === tx && y === ty) {
+                // reached the target
+                console.log('Target reached');
+                return [dist, firstStep];
+            }
+            if (y - 1 >= 0 && board[x][y - 1] === '.') {
+                firstStep = dist === 1 ? [x, y - 1] : firstStep;
+                newReachable.push([x, y - 1, ...firstStep]);
+            }
+            if (x - 1 >= 0 && board[x - 1][y] === '.') {
+                firstStep = dist === 1 ? [x - 1, y] : firstStep;
+                newReachable.push([x - 1, y, ...firstStep]);
+            }
+            if (x + 1 < board.length && board[x + 1][y] === '.') {
+                firstStep = dist === 1 ? [x + 1, y] : firstStep;
+                newReachable.push([x + 1, y, ...firstStep]);
+            }
+            if (y + 1 < board[0].length && board[x][y + 1] === '.') {
+                firstStep = dist === 1 ? [x, y + 1] : firstStep;
+                newReachable.push([x, y + 1, ...firstStep]);
+            }
+        }
+        console.log(newReachable);
+
+        newReachable.sort((a, b) => {
+            if (a[1] === b[1]) {
+                if (a[0] === b[0]) {
+                    if (a[3] === b[3]) {
+                        return a[2] - b[2];
+                    }
+                    a[3] - b[3];
+                }
+                return a[0] - b[0];
+            }
+            return a[1] - b[1];
+        });
+
+        reachable = newReachable.filter(unique);
+        newReachable = [];
+
+        dist++;
+    }
+
+
     return [Number.MAX_SAFE_INTEGER, []];
 }
 
@@ -149,9 +211,7 @@ let findInRangeField = (unit, opponents, board) => {
         }
     }
 
-    let unique = (e, i, a) => {
-        return a.findIndex(el => el[0] === e[0] && el[1] === e[1]) === i;
-    }
+
 
     inRange.filter(unique).sort((a, b) => {
         if (a[1] === b[1]) {
@@ -161,7 +221,7 @@ let findInRangeField = (unit, opponents, board) => {
     });
 
     for (let range of inRange) {
-        let [d, path] = distance(unit, range);
+        let [d, path] = distance(unit, range, board);
         if (d < min) {
             min = d;
             target = range;
