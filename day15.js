@@ -120,38 +120,56 @@ let search = (x, y, letter, board) => {
     }
 }
 
-let move = (unit, opponents, board) => {
+let distance = () => {
+    return [Number.MAX_SAFE_INTEGER, []];
+}
+
+let findInRangeField = (unit, opponents, board) => {
     let [x, y] = [unit.x, unit.y];
+    let min = Number.MAX_SAFE_INTEGER;
+    let target;
+    let minPath;
 
-    let opponent = [...opponents.values()][0];
-    let opponentLetter = opponent.u;
+    let inRange = [];
 
-    let target = search(x, y, opponentLetter, board);
+    for (let oppenent of opponents) {
+        let [ox, oy] = [oppenent.x, oppenent.y];
 
-    if (!target) {
-        return false;
-    }
-    if (target[0] !== x || target[1] !== y) {
-        // console.log(`${x},${y} has target ${target}`);
-        if (target[1] < y && board[x][y - 1] === '.') {
-            // move up
-            return [x, y - 1];
+        if (oy - 1 >= 0 && board[ox][oy - 1] === '.') {
+            inRange.push([ox, oy - 1]);
         }
-        if (target[0] < x && board[x - 1][y] === '.') {
-            // move left
-            return [x - 1, y];
+        if (ox - 1 >= 0 && board[ox - 1][oy] === '.') {
+            inRange.push([ox - 1, oy]);
         }
-        if (target[0] > x && board[x + 1][y] === '.') {
-            // move right
-            return [x + 1, y];
+        if (ox + 1 < board.length && board[ox + 1][oy] === '.') {
+            inRange.push([ox + 1, oy]);
         }
-        if (target[1] > y && board[x][y + 1] === '.') {
-            // move down
-            return [x, y + 1];
+        if (oy + 1 < board[0].length && board[ox][oy + 1] === '.') {
+            inRange.push([ox, oy + 1]);
         }
     }
-    return[x, y];
 
+    let unique = (e, i, a) => {
+        return a.findIndex(el => el[0] === e[0] && el[1] === e[1]) === i;
+    }
+
+    inRange.filter(unique).sort((a, b) => {
+        if (a[1] === b[1]) {
+            return a[0] - b[0];
+        }
+        return a[1] - b[1];
+    });
+
+    for (let range of inRange) {
+        let [d, path] = distance(unit, range);
+        if (d < min) {
+            min = d;
+            target = range;
+            minPath = path;
+        }
+    }
+
+    return [target, minPath];
 }
 
 let print = (board) => {
@@ -173,6 +191,7 @@ let main = async () => {
     let i = 3;
 
     while (i > 0) {
+        console.log(units.length);
         for (let unit of units) {
             let opponents = elfs;
             if (unit.u === 'E') {
@@ -184,13 +203,16 @@ let main = async () => {
                 return;
             }
 
-            let res = move(unit, opponents, board);
+            let res = findInRangeField(unit, opponents, board);
 
-            if (res) {
-                board[unit.x][unit.y] = '.';
-                unit.x = res[0];
-                unit.y = res[1];
+            if (res[0] < Number.MAX_SAFE_INTEGER) {
+                let [target, path] = res;
+                board[unit.x][unit.y] = '.'; ``
+                unit.x = path[0][0];
+                unit.y = path[0][1];
                 board[unit.x][unit.y] = unit.u;
+            } else {
+                console.log(`No more moves for ${unit.x}, ${unit.y}`);
             }
         }
         print(board);
