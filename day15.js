@@ -111,19 +111,23 @@ let move = (unit, opponents, board) => {
     if (target) {
         if (target[0] !== x || target[1] !== y) {
             console.log(`${x},${y} has target ${target}`);
+            if (target[1] < y) {
+                // move up
+                return [x, y - 1];
+            }
             if (target[0] < x) {
+                // move left
                 return [x - 1, y];
             }
             if (target[0] > x) {
+                // move right
                 return [x + 1, y];
             }
             if (target[1] > y) {
-                console.log('Move down')
+                // move down
                 return [x, y + 1];
             }
-            if (target[1] < y) {
-                return [x, y - 1];
-            }
+
     
         }
     }
@@ -166,9 +170,8 @@ let main = async () => {
             console.log(`We moved ${unit}!`);
             board[unit.x][unit.y] = unit.u;
         }
-        print(board);
-        return;
     }
+    print(board);
 
 }
 
