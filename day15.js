@@ -1,14 +1,15 @@
 const fs = require('fs').promises;
+const GOBLIN_POWER = 3;
 
 let readInput = async () => {
-    let res = await fs.readFile('./input15.txt');
+    // let res = await fs.readFile('./input15.txt');
     // let res = await fs.readFile('./47-590.txt');
     // let res = await fs.readFile('./37-982.txt');
     // let res = await fs.readFile('./20-937.txt');
     // let res = await fs.readFile('./54-536.txt');
     // let res = await fs.readFile('./35-793.txt');
     // let res = await fs.readFile('./46-859.txt');
-    // let res = await fs.readFile('./testInput.txt');
+    let res = await fs.readFile('./testInput.txt');
     // let res = await fs.readFile('./reddit.txt');
 
     let inputs = res.toString().split('\n');
@@ -230,7 +231,7 @@ let findTargets = (unit, opponents, board) => {
     return ops;
 }
 
-let attack = (unit, opponents, board) => {
+let attack = (unit, opponents, board, elfPower) => {
     let targets = findTargets(unit, opponents, board);
     if (targets.length === 0) {
         // nobody to attack
@@ -250,8 +251,10 @@ let attack = (unit, opponents, board) => {
     targets = targets.filter(t => t.hitPoints === minHitPoints).sort(unitsort);
 
     let dead;
-    if (minHitPoints > 3) {
-        targets[0].hitPoints -= 3;
+    let power = targets[0].u === 'G' ? elfPower : GOBLIN_POWER;
+
+    if (minHitPoints > power) {
+        targets[0].hitPoints -= power;
     } else {
         dead = targets[0];
         // console.log(`${dead.u} died`);
@@ -265,81 +268,85 @@ let attack = (unit, opponents, board) => {
 }
 
 let main = async () => {
-    let inputs = (await readInput());
-    let [board, elves, goblins] = initialize(inputs);
-    let units = sortUnits(elves, goblins);
+    elfPower = 4;
+    let initialElves;
+    while (true) {
+        let inputs = (await readInput());
+        let [board, elves, goblins] = initialize(inputs);
+        initialElves = elves.size;
+        let units = sortUnits(elves, goblins);
 
-    let count = 0;
+        let count = 0;
 
-    let ops = true;
-    print(board);
-    while (ops && count < 300) {
-        console.log(count);
-        for (let [hash, unit] of units) {
-            // console.log(unit)
-            if (unit.dead) {
-                // console.log('skip dead unit');
-                continue;
-            }
-            let opponents = elves;
-            if (unit.u === 'E') {
-                opponents = goblins;
-            }
+        let ops = true;
+        // print(board);
+        while (ops && count < 300) {
+            for (let [hash, unit] of units) {
+                if (unit.dead) {
+                    continue;
+                }
+                let opponents = elves;
+                if (unit.u === 'E') {
+                    opponents = goblins;
+                }
 
-            if (opponents.size === 0) {
-                // No more opponents
-                // console.log(`Broke in middle of run`)
-                ops = false;
-                break;
-            }
+                if (opponents.size === 0) {
+                    // No more opponents
+                    ops = false;
+                    break;
+                }
 
-            let [d, firstStep] = getDirection(unit, opponents, board);
-            if (firstStep) {
-                if (firstStep.length > 0) {
-                    board[unit.x][unit.y] = '.';
-                    [unit.x, unit.y] = firstStep;
-                    if (unit.u === 'E') {
-                        elves.delete(hash);
-                        elves.set(100 * unit.y + unit.x, unit);
+                let [d, firstStep] = getDirection(unit, opponents, board);
+                if (firstStep) {
+                    if (firstStep.length > 0) {
+                        board[unit.x][unit.y] = '.';
+                        [unit.x, unit.y] = firstStep;
+                        if (unit.u === 'E') {
+                            elves.delete(hash);
+                            elves.set(100 * unit.y + unit.x, unit);
+                        } else {
+                            goblins.delete(hash);
+                            goblins.set(100 * unit.y + unit.x, unit);
+                        }
+                        board[unit.x][unit.y] = unit.u;
                     } else {
-                        goblins.delete(hash);
-                        goblins.set(100 * unit.y + unit.x, unit);
                     }
-                    board[unit.x][unit.y] = unit.u;
+                    if (d <= 1) {
+                        let newOpponents = attack(unit, opponents, board, elfPower);
+                        if (unit.u === 'E') {
+                            goblins = newOpponents;
+                        } else {
+                            if(opponents.length > newOpponents.length) {
+                                // elf died
+                                ops = false;
+                            }
+                            elves = newOpponents;
+                        }
+                    }
                 } else {
                 }
-                if (d <= 1) {
-                    // console.log(`${unit.x}, ${unit.y}, ${unit.u} close enough to attack `);
-                    let newOpponents = attack(unit, opponents, board);
-                    if (unit.u === 'E') {
-                        goblins = newOpponents;
-                    } else {
-                        elves = newOpponents;
-                    }
-                } else {
-                    // console.log(`${unit.x}, ${unit.y}, ${unit.u} NOT close enough to attack: ${d} `);
-                }
-            } else {
-                // console.log(`No more moves for ${unit.x}, ${unit.y}`);
+                first = false;
             }
-            first = false;
+            // print(board);
+            units = sortUnits(elves, goblins);
+            count++;
         }
-        print(board);
-        units = sortUnits(elves, goblins);
-        count++;
+        count--;
+        let power = 0;
+        for (let goblin of [...goblins.values()].sort(unitsort)) {
+            // console.log(goblin)
+            power += goblin.hitPoints;
+        }
+        for (let elf of [...elves.values()]) {
+            // console.log(elf);
+            power += elf.hitPoints;
+        }
+        console.log(`Power ${elfPower}: ${count} * ${power}, product ${power * count}`);
+        if(goblins.size === 0 && elves.size === initialElves) {
+            return;
+        }
+        elfPower++;
     }
-    count--;
-    console.log(`Count is ${count}`);
-    let power = 0;
-    for (let goblin of [...goblins.values()].sort(unitsort)) {
-        console.log(goblin)
-        power += goblin.hitPoints;
-    }
-    for (let elf of [...elves.values()]) {
-        console.log(elf);
-        power += elf.hitPoints;
-    }
-    console.log(`${count} - ${power}, product ${power * count}`);
 }
 
 main();
