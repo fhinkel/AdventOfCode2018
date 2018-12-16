@@ -3,11 +3,11 @@ const fs = require('fs').promises;
 let readInput = async () => {
     // let res = await fs.readFile('./input15.txt');
     // let res = await fs.readFile('./47-590.txt');
-    // let res = await fs.readFile('./37-982.txt');
+    let res = await fs.readFile('./37-982.txt');
     // let res = await fs.readFile('./20-937.txt');
     // let res = await fs.readFile('./54-536.txt');
     // let res = await fs.readFile('./35-793.txt');
-    let res = await fs.readFile('./46-859.txt');
+    // let res = await fs.readFile('./46-859.txt');
     // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
     return inputs
@@ -101,18 +101,7 @@ let distance = (src, target, board) => {
             }
         }
 
-        newReachable.sort((a, b) => {
-            if (a[1] === b[1]) {
-                if (a[0] === b[0]) {
-                    if (a[3] === b[3]) {
-                        return a[2] - b[2];
-                    }
-                    a[3] - b[3];
-                }
-                return a[0] - b[0];
-            }
-            return a[1] - b[1];
-        });
+        newReachable.sort(arraysort);
 
         reachable = newReachable.filter(unique);
         newReachable = [];
@@ -252,7 +241,7 @@ let main = async () => {
     let count = 0;
 
     let ops = true;
-    while (ops) {
+    while (ops ) {
         console.log(count);
         for (let unit of units) {
             // console.log(unit)
@@ -303,7 +292,7 @@ let main = async () => {
     count--;
     console.log(`Count is ${count}`);
     let power = 0;
-    for (let goblin of [...goblins.values()]) {
+    for (let goblin of [...goblins.values()].sort(unitsort)) {
         console.log(goblin)
         power += goblin.hitPoints;
     }
