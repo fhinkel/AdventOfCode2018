@@ -2,14 +2,14 @@ const fs = require('fs').promises;
 const GOBLIN_POWER = 3;
 
 let readInput = async () => {
-    // let res = await fs.readFile('./input15.txt');
+    let res = await fs.readFile('./input15.txt');
     // let res = await fs.readFile('./47-590.txt');
     // let res = await fs.readFile('./37-982.txt');
     // let res = await fs.readFile('./20-937.txt');
     // let res = await fs.readFile('./54-536.txt');
     // let res = await fs.readFile('./35-793.txt');
     // let res = await fs.readFile('./46-859.txt');
-    let res = await fs.readFile('./testInput.txt');
+    // let res = await fs.readFile('./testInput.txt');
     // let res = await fs.readFile('./reddit.txt');
 
     let inputs = res.toString().split('\n');
@@ -316,7 +316,7 @@ let main = async () => {
                         if (unit.u === 'E') {
                             goblins = newOpponents;
                         } else {
-                            if(opponents.length > newOpponents.length) {
+                            if (opponents.length > newOpponents.length) {
                                 // elf died
                                 ops = false;
                             }
@@ -342,7 +342,7 @@ let main = async () => {
             power += elf.hitPoints;
         }
         console.log(`Power ${elfPower}: ${count} * ${power}, product ${power * count}`);
-        if(goblins.size === 0 && elves.size === initialElves) {
+        if (goblins.size === 0 && elves.size === initialElves) {
             return;
         }
         elfPower++;
