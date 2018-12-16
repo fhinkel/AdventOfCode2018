@@ -1,8 +1,8 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    // let res = await fs.readFile('./input15.txt');
-    let res = await fs.readFile('./47-590.txt');
+    let res = await fs.readFile('./input15.txt');
+    // let res = await fs.readFile('./47-590.txt');
     // let res = await fs.readFile('./37-982.txt');
     // let res = await fs.readFile('./20-937.txt');
     // let res = await fs.readFile('./54-536.txt');
@@ -67,6 +67,8 @@ let distance = (src, target, board) => {
         return [0, []];
     }
 
+    let visited = []
+
     let reachable = [[sx, sy]];
     let newReachable = [];
 
@@ -115,7 +117,14 @@ let distance = (src, target, board) => {
         });
 
         reachable = newReachable.filter(unique);
+        reachable = reachable.filter(square => {
+            let index = visited.findIndex(v => v[0] === square[0] && v[1] === square[1]);
+            return index === -1;
+        })
+        // console.log(before, reachable.length);
+
         newReachable = [];
+        visited = [...visited, ...reachable].filter(unique);
 
         dist++;
     }
@@ -289,7 +298,7 @@ let main = async () => {
                         elves = newOpponents;
                     }
                 } else {
-                    // console.log(`${unit.x}, ${unit.y}, ${unit.u} NOT close enough to attack: ${d} `);
+                    console.log(`${unit.x}, ${unit.y}, ${unit.u} NOT close enough to attack: ${d} `);
                 }
             } else {
                 // console.log(`No more moves for ${unit.x}, ${unit.y}`);
