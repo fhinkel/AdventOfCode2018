@@ -1,8 +1,8 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    let res = await fs.readFile('./input15.txt');
-    // let res = await fs.readFile('./47-590.txt');
+    // let res = await fs.readFile('./input15.txt');
+    let res = await fs.readFile('./47-590.txt');
     // let res = await fs.readFile('./37-982.txt');
     // let res = await fs.readFile('./20-937.txt');
     // let res = await fs.readFile('./54-536.txt');
@@ -15,8 +15,8 @@ let readInput = async () => {
 
 let initialize = (inputs) => {
     let board = Array(inputs.length).fill().map(() => []);
-    let elves = new Set();
-    let goblins = new Set();
+    let elves = new Map();
+    let goblins = new Map();
     // {i, j, hitPoints = 200 }
 
     for (let i = 0; i < inputs.length; i++) {
@@ -24,11 +24,11 @@ let initialize = (inputs) => {
             board[j][i] = inputs[i][j];
             if (inputs[i][j] === 'E') {
                 let elf = { x: j, y: i, u: 'E', hitPoints: 200 };
-                elves.add(elf);
+                elves.set(elf.y * 100 + elf.x, elf);
             }
             if (inputs[i][j] === 'G') {
                 let goblin = { x: j, y: i, u: 'G', hitPoints: 200 };
-                goblins.add(goblin);
+                goblins.set(goblin.y * 100 + goblin.x, goblin);
             }
         }
     }
@@ -51,7 +51,9 @@ let arraysort = (a, b) => {
 
 
 let sortUnits = (elves, goblins) => {
-    return [...elves.values(), ...goblins.values()].sort(unitsort);
+    return [...elves.entries(), ...goblins.entries()].sort((a, b) => {
+        return a[0] - b[0];
+    });
 }
 
 let unique = (e, i, a) => {
@@ -140,7 +142,7 @@ let distance = (src, target, board) => {
 let getDirection = (unit, opponents, board) => {
     let inRange = [];
 
-    for (let oppenent of opponents) {
+    for (let oppenent of [...opponents.values()]) {
         let [ox, oy] = [oppenent.x, oppenent.y];
 
         if (oy - 1 >= 0 && (board[ox][oy - 1] === '.' || (ox === unit.x && oy - 1 === unit.y))) {
@@ -210,8 +212,10 @@ let findTargets = (unit, opponents, board) => {
 
     let ops = []
     for (let target of targets) {
-        let opponent = [...opponents].find(o => o.x === target[0] && o.y === target[1]);
-        ops.push(opponent);
+        let hash = target[1] * 100 + target[0];
+        if (opponents.has(hash)) {
+            ops.push(opponents.get(hash))[1];
+        }
     }
 
     return ops;
@@ -222,6 +226,7 @@ let attack = (unit, opponents, board) => {
     if (targets.length === 0) {
         // nobody to attack
         print(board);
+        console.log(opponents);
         console.log(`this should not happen for ${unit.x}, ${unit.y}, ${unit.u}`)
 
     }
@@ -242,14 +247,11 @@ let attack = (unit, opponents, board) => {
         dead = targets[0];
         // console.log(`${dead.u} died`);
         dead.u = 'D';
-        let opsArray = [...opponents]
-        let deadIndex = opsArray.findIndex(o => o.x === dead.x && o.y === dead.y);
-        opsArray.splice(deadIndex, 1);
+        opponents.delete(dead.y * 100 + dead.x);
         board[dead.x][dead.y] = '.';
-        opponents = new Set(opsArray);
     }
     // console.log(`new size: ${opponents.size}`)
-    return [opponents, dead];
+    return opponents;
 
 }
 
@@ -263,7 +265,7 @@ let main = async () => {
     let ops = true;
     while (ops) {
         console.log(count);
-        for (let unit of units) {
+        for (let [hash, unit] of units) {
             // console.log(unit)
             if (unit.u === 'D') {
                 // console.log('skip dead unit');
@@ -285,13 +287,21 @@ let main = async () => {
             if (firstStep) {
                 if (firstStep.length > 0) {
                     board[unit.x][unit.y] = '.';
+
                     [unit.x, unit.y] = firstStep;
+                    if (unit.u === 'E') {
+                        elves.delete(hash);
+                        elves.set(100 * unit.y + unit.x, unit);
+                    } else {
+                        goblins.delete(hash);
+                        goblins.set(100 * unit.y + unit.x, unit);
+                    }
                     board[unit.x][unit.y] = unit.u;
                 } else {
                 }
                 if (d <= 1) {
                     // console.log(`${unit.x}, ${unit.y}, ${unit.u} close enough to attack `);
-                    let [newOpponents, dead] = attack(unit, opponents, board);
+                    let newOpponents = attack(unit, opponents, board);
                     if (unit.u === 'E') {
                         goblins = newOpponents;
                     } else {
