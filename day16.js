@@ -4,7 +4,10 @@ let readInput = async () => {
     let res = await fs.readFile('./input16.txt');
     // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
-    return inputs;
+
+    res = await fs.readFile('./input16-2.txt');
+    let program = res.toString().split('\n');
+    return [inputs, program];
 }
 
 let initialize = (inputs) => {
@@ -34,7 +37,7 @@ let initialize = (inputs) => {
 }
 
 let main = async () => {
-    let inputs = (await readInput());
+    let [inputs, program] = (await readInput());
     let examples = initialize(inputs);
 
     let opcodes = [];
@@ -105,6 +108,7 @@ let main = async () => {
         return before;
     }
     let opcodeGtrr = (a, b, c, before) => {
+        console.log('gtrr')
         // register A greater than register B
         before[c] = before[a] > before[b] ? 1 : 0;
         return before;
@@ -125,8 +129,6 @@ let main = async () => {
         before[c] = before[a] === before[b] ? 1 : 0;
         return before;
     }
-
-
 
     opcodes.push(opcodeAddr);
     opcodes.push(opcodeAddi);
@@ -164,6 +166,8 @@ let main = async () => {
         return true;
     }
 
+    // <real code, index>
+    let ops = new Map();
     for (let [before, instruction, after] of examples) {
         let validOpCodes = [];
         for (let i = 0; i < opcodes.length; i++) {
@@ -173,6 +177,14 @@ let main = async () => {
             if (equalRegisters(res, after)) {
                 // console.log('equal')
                 // console.log(i);
+                let code = instruction[0];
+                if (!ops.has(code)) {
+                    ops.set(code, new Set());
+                }
+                let possibleIndeces = ops.get(code);
+                possibleIndeces.add(i);
+                ops.set(code, possibleIndeces);
+
                 validOpCodes.push(opcode);
             }
         }
@@ -182,6 +194,41 @@ let main = async () => {
     }
 
     console.log(count);
+
+    // < real, index>
+    let realOps = new Map();
+
+    while (ops.size > 0) {
+        for (let [real, list] of [...ops.entries()]) {
+            if (list.size === 1) {
+                console.log('we found a code');
+                let index = list.values().next().value;
+                realOps.set(real, index);
+            }
+        }
+        for (let [, index] of [...realOps.entries()]) {
+            for (let [real, list] of [...ops.entries()]) {
+                if (list.has(index)) {
+                    list.delete(index);
+                    if (list.size === 0) {
+                        ops.delete(real);
+                    } else {
+                        ops.set(real, list);
+                    }
+                }
+            }
+        }
+    }
+
+    console.log(realOps);
+
+    let state = [0, 0, 0, 0];
+    for (let line of program) {
+        let [op, a, b, c] = line.match(/\d+/g).map(Number);
+        let index = realOps.get(op);
+        state = opcodes[index](a, b, c, state);
+    }
+    console.log(state);
 }
 
 main();
