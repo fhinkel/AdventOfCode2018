@@ -308,7 +308,9 @@ let main = async () => {
 
     let count = 0;
 
-    while (elves.size > 0 ) {
+    let ops = true;
+    while (elves.size > 0 && ops) {
+        let first = true;
         for (let unit of units) {
             // console.log(unit)
             let opponents = elves;
@@ -318,7 +320,9 @@ let main = async () => {
 
             if (opponents.size === 0) {
                 // No more opponents
-                return;
+                if (!first) count--;
+                ops = false;
+                break;
             }
 
             let [d, firstStep] = getDirection(unit, opponents, board);
@@ -346,6 +350,7 @@ let main = async () => {
             } else {
                 // console.log(`No more moves for ${unit.x}, ${unit.y}`);
             }
+            first = false;
         }
         print(board);
         units = sortUnits(elves, goblins);
@@ -359,6 +364,7 @@ let main = async () => {
     }
     for (let elf of [...elves.values()]) {
         console.log(elf);
+        power += elf.hitPoints;
     }
     console.log(`Power ${power}, product ${power * count}`);
 }
