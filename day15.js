@@ -1,8 +1,8 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    // let res = await fs.readFile('./input15.txt');
-    let res = await fs.readFile('./47-590.txt');
+    let res = await fs.readFile('./input15.txt');
+    // let res = await fs.readFile('./47-590.txt');
     // let res = await fs.readFile('./37-982.txt');
     // let res = await fs.readFile('./20-937.txt');
     // let res = await fs.readFile('./54-536.txt');
