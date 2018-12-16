@@ -108,7 +108,6 @@ let main = async () => {
         return before;
     }
     let opcodeGtrr = (a, b, c, before) => {
-        console.log('gtrr')
         // register A greater than register B
         before[c] = before[a] > before[b] ? 1 : 0;
         return before;
@@ -201,7 +200,6 @@ let main = async () => {
     while (ops.size > 0) {
         for (let [real, list] of [...ops.entries()]) {
             if (list.size === 1) {
-                console.log('we found a code');
                 let index = list.values().next().value;
                 realOps.set(real, index);
             }
