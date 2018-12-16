@@ -1,15 +1,18 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    // let res = await fs.readFile('./input15.txt');
+    let res = await fs.readFile('./input15.txt');
     // let res = await fs.readFile('./47-590.txt');
-    let res = await fs.readFile('./37-982.txt');
+    // let res = await fs.readFile('./37-982.txt');
     // let res = await fs.readFile('./20-937.txt');
     // let res = await fs.readFile('./54-536.txt');
     // let res = await fs.readFile('./35-793.txt');
     // let res = await fs.readFile('./46-859.txt');
     // let res = await fs.readFile('./testInput.txt');
+    // let res = await fs.readFile('./reddit.txt');
+
     let inputs = res.toString().split('\n');
+
     return inputs
 }
 
@@ -165,7 +168,7 @@ let getDirection = (unit, opponents, board) => {
         }
     }
 
-    inRange.filter(unique).sort(arraysort);
+    inRange = inRange.filter(unique).sort(arraysort);
 
     let rightStep;
     let min = Number.MAX_SAFE_INTEGER;
@@ -252,7 +255,7 @@ let attack = (unit, opponents, board) => {
     } else {
         dead = targets[0];
         // console.log(`${dead.u} died`);
-        dead.u = 'D';
+        dead.dead = true;
         opponents.delete(dead.y * 100 + dead.x);
         board[dead.x][dead.y] = '.';
     }
@@ -269,11 +272,12 @@ let main = async () => {
     let count = 0;
 
     let ops = true;
-    while (ops) {
+    print(board);
+    while (ops && count < 300) {
         console.log(count);
         for (let [hash, unit] of units) {
             // console.log(unit)
-            if (unit.u === 'D') {
+            if (unit.dead) {
                 // console.log('skip dead unit');
                 continue;
             }
@@ -284,7 +288,7 @@ let main = async () => {
 
             if (opponents.size === 0) {
                 // No more opponents
-                console.log(`Broke in middle or run`)
+                // console.log(`Broke in middle of run`)
                 ops = false;
                 break;
             }
@@ -293,7 +297,6 @@ let main = async () => {
             if (firstStep) {
                 if (firstStep.length > 0) {
                     board[unit.x][unit.y] = '.';
-
                     [unit.x, unit.y] = firstStep;
                     if (unit.u === 'E') {
                         elves.delete(hash);
@@ -314,7 +317,7 @@ let main = async () => {
                         elves = newOpponents;
                     }
                 } else {
-                    console.log(`${unit.x}, ${unit.y}, ${unit.u} NOT close enough to attack: ${d} `);
+                    // console.log(`${unit.x}, ${unit.y}, ${unit.u} NOT close enough to attack: ${d} `);
                 }
             } else {
                 // console.log(`No more moves for ${unit.x}, ${unit.y}`);
