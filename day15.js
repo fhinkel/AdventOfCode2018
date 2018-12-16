@@ -1,11 +1,13 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    // let res = await fs.readFile('./input15.txt');
-    let res = await fs.readFile('./47-590.txt');
+    let res = await fs.readFile('./input15.txt');
+    // let res = await fs.readFile('./47-590.txt');
     // let res = await fs.readFile('./37-982.txt');
-
-
+    // let res = await fs.readFile('./20-937.txt');
+    // let res = await fs.readFile('./54-536.txt');
+    // let res = await fs.readFile('./35-793.txt');
+    // let res = await fs.readFile('./46-859.txt');
     // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
     return inputs
@@ -85,13 +87,17 @@ let distance = (src, target, board) => {
     let newReachable = [];
 
     let dist = 0;
-    while (dist < board.length * board[0].length) {
+    let searching = true;
+    let firstSteps = [];
+    while (dist < board.length * board[0].length && searching) {
         for (let pos of reachable) {
             let firstStep = [pos[2], pos[3]];
             let [x, y] = pos;
             if (x === tx && y === ty) {
                 // reached the target
-                return [dist, firstStep];
+                searching = false;
+                firstSteps.push(firstStep);
+                continue;
             }
             if (y - 1 >= 0 && board[x][y - 1] === '.') {
                 firstStep = dist === 0 ? [x, y - 1] : firstStep;
@@ -130,7 +136,17 @@ let distance = (src, target, board) => {
         dist++;
     }
 
-    return [Number.MAX_SAFE_INTEGER, []];
+    if (searching) {
+        return [Number.MAX_SAFE_INTEGER, []];
+    }
+    dist--;
+    firstSteps.sort((a, b) => {
+        if (a[1] === b[1]) {
+            return a[0] - b[0];
+        }
+        return a[1] - b[1];
+    })
+    return [dist, firstSteps[0]];
 }
 
 let getDirection = (unit, opponents, board) => {
@@ -241,11 +257,13 @@ let attack = (unit, opponents, board) => {
         return t1.x - t2.x;
     });
 
+    let dead;
     if (minHitPoints > 3) {
         targets[0].hitPoints -= 3;
     } else {
-        let dead = targets[0];
-        console.log(`${dead.u} died`);
+        dead = targets[0];
+        // console.log(`${dead.u} died`);
+        dead.u = 'D';
         let opsArray = [...opponents]
         let deadIndex = opsArray.findIndex(o => o.x === dead.x && o.y === dead.y);
         opsArray.splice(deadIndex, 1);
@@ -253,7 +271,7 @@ let attack = (unit, opponents, board) => {
         opponents = new Set(opsArray);
     }
     // console.log(`new size: ${opponents.size}`)
-    return opponents
+    return [opponents, dead];
 
 }
 
@@ -265,10 +283,14 @@ let main = async () => {
     let count = 0;
 
     let ops = true;
-    while (elves.size > 0 && ops) {
-        let first = true;
+    while (ops) {
+        console.log(count);
         for (let unit of units) {
             // console.log(unit)
+            if (unit.u === 'D') {
+                // console.log('skip dead unit');
+                continue;
+            }
             let opponents = elves;
             if (unit.u === 'E') {
                 opponents = goblins;
@@ -276,8 +298,7 @@ let main = async () => {
 
             if (opponents.size === 0) {
                 // No more opponents
-                console.log(`Broke in middle or run: ${first}`)
-                if (!first) count--;
+                console.log(`Broke in middle or run`)
                 ops = false;
                 break;
             }
@@ -291,15 +312,15 @@ let main = async () => {
                 } else {
                 }
                 if (d <= 1) {
-                    console.log(`${unit.x}, ${unit.y}, ${unit.u} close enough to attack `);
-                    opponents = attack(unit, opponents, board);
+                    // console.log(`${unit.x}, ${unit.y}, ${unit.u} close enough to attack `);
+                    let [newOpponents, dead] = attack(unit, opponents, board);
                     if (unit.u === 'E') {
-                        goblins = opponents;
+                        goblins = newOpponents;
                     } else {
-                        elves = opponents;
+                        elves = newOpponents;
                     }
                 } else {
-                    console.log(`${unit.x}, ${unit.y}, ${unit.u} NOT close enough to attack: ${d} `);
+                    // console.log(`${unit.x}, ${unit.y}, ${unit.u} NOT close enough to attack: ${d} `);
                 }
             } else {
                 // console.log(`No more moves for ${unit.x}, ${unit.y}`);
@@ -310,6 +331,7 @@ let main = async () => {
         units = sortUnits(elves, goblins);
         count++;
     }
+    count--;
     console.log(`Count is ${count}`);
     let power = 0;
     for (let goblin of [...goblins.values()]) {
