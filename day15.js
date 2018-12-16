@@ -1,13 +1,13 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    let res = await fs.readFile('./input15.txt');
+    // let res = await fs.readFile('./input15.txt');
     // let res = await fs.readFile('./47-590.txt');
     // let res = await fs.readFile('./37-982.txt');
     // let res = await fs.readFile('./20-937.txt');
     // let res = await fs.readFile('./54-536.txt');
     // let res = await fs.readFile('./35-793.txt');
-    // let res = await fs.readFile('./46-859.txt');
+    let res = await fs.readFile('./46-859.txt');
     // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
     return inputs
@@ -36,38 +36,22 @@ let initialize = (inputs) => {
     return [board, elves, goblins];
 }
 
-let initializeEG = (board) => {
-    let elves = new Set();
-    let goblins = new Set();
-
-    for (let i = 0; i < board.length; i++) { // left to right
-        for (let j = 0; j < board[0].length; j++) { // top to bottom
-            if (board[i][j] === 'E') {
-
-                let elf = { x: i, y: j, u: 'E', hitPoints: board[i][j].hitPoints };
-                elves.add(elf);
-            }
-            if (board[i][j] === 'G') {
-                let goblin = { x: i, y: j, u: 'G', hitPoints: board[i][j].hitPoints };
-                goblins.add(goblin);
-            }
-        }
+let unitsort = (u1, u2) => {
+    if (u1.y !== u2.y) {
+        return u1.y - u2.y;
     }
-
-    return [elves, goblins];
+    return u1.x - u2.x;
 }
+let arraysort = (a, b) => {
+    if (a[1] === b[1]) {
+        return a[0] - b[0];
+    }
+    return a[1] - b[1];
+};
+
 
 let sortUnits = (elves, goblins) => {
-    let units = [...elves.values(), ...goblins.values()];
-
-    units.sort((u1, u2) => {
-        if (u1.y !== u2.y) {
-            return u1.y - u2.y;
-        }
-        return u1.x - u2.x;
-    });
-
-    return units;
+    return [...elves.values(), ...goblins.values()].sort(unitsort);
 }
 
 let unique = (e, i, a) => {
@@ -140,12 +124,7 @@ let distance = (src, target, board) => {
         return [Number.MAX_SAFE_INTEGER, []];
     }
     dist--;
-    firstSteps.sort((a, b) => {
-        if (a[1] === b[1]) {
-            return a[0] - b[0];
-        }
-        return a[1] - b[1];
-    })
+    firstSteps.sort(arraysort)
     return [dist, firstSteps[0]];
 }
 
@@ -169,12 +148,7 @@ let getDirection = (unit, opponents, board) => {
         }
     }
 
-    inRange.filter(unique).sort((a, b) => {
-        if (a[1] === b[1]) {
-            return a[0] - b[0];
-        }
-        return a[1] - b[1];
-    });
+    inRange.filter(unique).sort(arraysort);
 
     let rightStep;
     let min = Number.MAX_SAFE_INTEGER;
@@ -250,12 +224,7 @@ let attack = (unit, opponents, board) => {
         }
     }
 
-    targets = targets.filter(t => t.hitPoints === minHitPoints).sort((t1, t2) => {
-        if (t1.y !== t2.y) {
-            return t1.y - t2.y;
-        }
-        return t1.x - t2.x;
-    });
+    targets = targets.filter(t => t.hitPoints === minHitPoints).sort(unitsort);
 
     let dead;
     if (minHitPoints > 3) {
