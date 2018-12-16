@@ -2,7 +2,11 @@ const fs = require('fs').promises;
 
 let readInput = async () => {
     // let res = await fs.readFile('./input15.txt');
-    let res = await fs.readFile('./testInput.txt');
+    // let res = await fs.readFile('./47-590.txt');
+    let res = await fs.readFile('./37-982.txt');
+
+
+    // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
     return inputs
 }
@@ -50,7 +54,6 @@ let initializeEG = (board) => {
 
     return [elves, goblins];
 }
-
 
 let sortUnits = (elves, goblins) => {
     let units = [...elves.values(), ...goblins.values()];
@@ -320,6 +323,7 @@ let main = async () => {
 
             if (opponents.size === 0) {
                 // No more opponents
+                console.log(`Broke in middle or run: ${first}`)
                 if (!first) count--;
                 ops = false;
                 break;
@@ -343,10 +347,7 @@ let main = async () => {
                     }
                 } else {
                     console.log(`${unit.x}, ${unit.y}, ${unit.u} NOT close enough to attack: ${d} `);
-
                 }
-
-
             } else {
                 // console.log(`No more moves for ${unit.x}, ${unit.y}`);
             }
@@ -366,43 +367,7 @@ let main = async () => {
         console.log(elf);
         power += elf.hitPoints;
     }
-    console.log(`Power ${power}, product ${power * count}`);
+    console.log(`${count} - ${power}, product ${power * count}`);
 }
 
-
 main();
-
-
-
-// After 1 round:
-// #########
-// #.G...G.#
-// #...G...#
-// #...E..G#
-// #.G.....#
-// #.......#
-// #G..G..G#
-// #.......#
-// #########
-
-// After 2 rounds:
-// #########
-// #..G.G..#
-// #...G...#
-// #.G.E.G.#
-// #.......#
-// #G..G..G#
-// #.......#
-// #.......#
-// #########
-
-// After 3 rounds:
-// #########
-// #.......#
-// #..GGG..#
-// #..GEG..#
-// #G..G...#
-// #......G#
-// #.......#
-// #.......#
-// #########
