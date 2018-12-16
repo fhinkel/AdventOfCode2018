@@ -2,8 +2,8 @@ const fs = require('fs').promises;
 
 let readInput = async () => {
     // let res = await fs.readFile('./input15.txt');
-    // let res = await fs.readFile('./47-590.txt');
-    let res = await fs.readFile('./37-982.txt');
+    let res = await fs.readFile('./47-590.txt');
+    // let res = await fs.readFile('./37-982.txt');
 
 
     // let res = await fs.readFile('./testInput.txt');
@@ -66,53 +66,6 @@ let sortUnits = (elves, goblins) => {
     });
 
     return units;
-}
-
-let findDirectOppononent = (x, y, letter, board) => {
-    if (y - 1 >= 0 && board[x][y - 1] === letter) {
-        // attack the top opponent
-        return [x, y - 1];
-    }
-    if (x - 1 >= 0 && board[x - 1][y] === letter) {
-        // attack the left opponent
-        return [x - 1, y];
-    }
-    if (x + 1 < board.length && board[x + 1][y] === letter) {
-        // attack the right opponent
-        return [x + 1, y];
-    }
-    if (y + 1 < board[0].length && board[x][y + 1] === letter) {
-        // attack the bottom opponent
-        return [x, y + 1];
-    }
-}
-
-let search = (x, y, letter, board) => {
-    let reachable = [[x, y]];
-    let newReachable = [];
-
-    let max = board.length * board[0].length;
-    // console.log(`Searching at most ${max} times`);
-    while (max) {
-        for (let pos of reachable) {
-            [x, y] = pos;
-            if (y - 1 >= 0 && board[x][y - 1] === '.') {
-                newReachable.push([x, y - 1]);
-            }
-            if (x - 1 >= 0 && board[x - 1][y] === '.') {
-                newReachable.push([x - 1, y]);
-            }
-            if (x + 1 < board.length && board[x + 1][y] === '.') {
-                newReachable.push([x + 1, y]);
-            }
-            if (y + 1 < board[0].length && board[x][y + 1] === '.') {
-                newReachable.push([x, y + 1]);
-            }
-        }
-        reachable = newReachable.filter(unique);
-        // console.log(reachable);
-        max--;
-    }
 }
 
 let unique = (e, i, a) => {
@@ -291,8 +244,8 @@ let attack = (unit, opponents, board) => {
     if (minHitPoints > 3) {
         targets[0].hitPoints -= 3;
     } else {
-        console.log("elf died");
         let dead = targets[0];
+        console.log(`${dead.u} died`);
         let opsArray = [...opponents]
         let deadIndex = opsArray.findIndex(o => o.x === dead.x && o.y === dead.y);
         opsArray.splice(deadIndex, 1);
