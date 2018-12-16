@@ -1,9 +1,9 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    let res = await fs.readFile('./input15.txt');
+    // let res = await fs.readFile('./input15.txt');
     // let res = await fs.readFile('./47-590.txt');
-    // let res = await fs.readFile('./37-982.txt');
+    let res = await fs.readFile('./37-982.txt');
     // let res = await fs.readFile('./20-937.txt');
     // let res = await fs.readFile('./54-536.txt');
     // let res = await fs.readFile('./35-793.txt');
@@ -69,16 +69,17 @@ let distance = (src, target, board) => {
         return [0, []];
     }
 
-    let visited = []
+    let visited = new Set();
 
-    let reachable = [[sx, sy]];
+    let reachable = [[sy * 100 + sx, [sx, sy]]];
     let newReachable = [];
 
     let dist = 0;
     let searching = true;
     let firstSteps = [];
+
     while (dist < board.length * board[0].length && searching) {
-        for (let pos of reachable) {
+        for (let [hash, pos] of reachable) {
             let firstStep = [pos[2], pos[3]];
             let [x, y] = pos;
             if (x === tx && y === ty) {
@@ -118,16 +119,21 @@ let distance = (src, target, board) => {
             return a[1] - b[1];
         });
 
-        reachable = newReachable.filter(unique);
-        reachable = reachable.filter(square => {
-            let index = visited.findIndex(v => v[0] === square[0] && v[1] === square[1]);
-            return index === -1;
-        })
-        // console.log(before, reachable.length);
+        let reachablesMap = new Map();
+        for (let square of newReachable) {
+            const hash = square[1] * 100 + square[0];
+            if (!reachablesMap.has(hash) && !visited.has(hash)) {
+                reachablesMap.set(hash, square);
+                visited.add(hash);
+            }
+        }
+
+        reachable = [...reachablesMap.entries()].sort((a, b) => {
+            return a[0] - b[0];
+        });
+
 
         newReachable = [];
-        visited = [...visited, ...reachable].filter(unique);
-
         dist++;
     }
 
