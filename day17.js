@@ -21,7 +21,7 @@ let main = async () => {
         let m = xPart.match(/x=(\d+),/);
         if (m) {
             let x = Number(m[1]);
-            let [, left, right] = yPart.match(/y=(\d+)\.\.(\d+)/);
+            let [, left, right] = yPart.match(/y=(\d+)\.\.(\d+)/).map(Number);
             if (x > maxX) {
                 maxX = x;
             } else if (x < minX) {
@@ -36,7 +36,7 @@ let main = async () => {
         } else {
             m = yPart.match(/y=(\d+),/);
             let y = Number(m[1]);
-            let [, left, right] = xPart.match(/x=(\d+)\.\.(\d+)/);
+            let [, left, right] = xPart.match(/x=(\d+)\.\.(\d+)/).map(Number);
             if (y > maxY) {
                 maxY = y;
             } else if (y < minY) {
@@ -70,14 +70,14 @@ let main = async () => {
         let m = xPart.match(/x=(\d+),/);
         if (m) {
             let x = Number(m[1]);
-            let [, left, right] = yPart.match(/y=(\d+)\.\.(\d+)/);
+            let [, left, right] = yPart.match(/y=(\d+)\.\.(\d+)/).map(Number);
             for (i = left; i <= right; i++) {
                 board[i - yOffset][x - xOffset] = '#';
             }
         } else {
             m = yPart.match(/y=(\d+),/);
             let y = Number(m[1]);
-            let [, left, right] = xPart.match(/x=(\d+)\.\.(\d+)/);
+            let [, left, right] = xPart.match(/x=(\d+)\.\.(\d+)/).map(Number);
             for (i = left; i <= right; i++) {
                 board[y - yOffset][i - xOffset] = '#';
             }
