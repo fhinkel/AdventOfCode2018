@@ -1,13 +1,44 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    // let res = await fs.readFile('./input17.txt');
-    let res = await fs.readFile('./testInput.txt');
+    let res = await fs.readFile('./input17.txt');
+    // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
     return inputs;
 }
 
+let flow = (board, x, y, d) => {
+    if (board[y][x] === '.') {
+        board[y][x] = '|';
+    }
+    if (board[y][x] === '#') {
+        return x;
+    }
+    if (y === board.length - 1) {
+        return;
+    }
+    if (board[y + 1][x] === '.') {
+        flow(board, x, y + 1);
+    }
+    if (board[y + 1][x] === '#' || board[y + 1][x] === '~') {
+        if (d === 'l') {
+            return flow(board, x - 1, y, 'l');
+        }
+        if (d === 'r') {
+            return flow(board, x + 1, y, 'r');
+        }
+        let left = flow(board, x - 1, y, 'l');
+        let right = flow(board, x + 1, y, 'r');
+        if (board[y][left] === '#' && board[y][right] === '#') {
+            for (let i = left + 1; i < right; i++) {
+                board[y][i] = '~';
+            }
+        }
+    } else {
+        return x;
+    }
 
+}
 
 let main = async () => {
     let inputs = await readInput();
@@ -54,7 +85,6 @@ let main = async () => {
     let width = maxX - minX + 1 + 2; // overflow left and right
     let height = maxY - minY + 1;
 
-    // spring: 500, 0
     let xOffset = minX - 1;
     let yOffset = minY;
 
@@ -84,9 +114,22 @@ let main = async () => {
         }
     }
 
+    flow(board, 500 - xOffset, 0);
+
     for (let i = 0; i < height; i++) {
-        console.log(board[i].join(''));
+        // console.log(board[i].join(''));
     }
+    
+    let water = 0;
+    for (let i = 0; i < height; i++) {
+        for(let j = 0; j < width; j++) {
+            if(board[i][j] === '~') {
+                water++;
+            }
+        }
+    }
+    console.log(water);
+
 
 }
 
