@@ -27,3 +27,6 @@
 25 seti 17 8 2 // jump to 18
 26 setr 4 3 1 // r1 = r4
 27 seti 7 9 2 // jump to 8
+28 eqrr 3 0 4
+29 addr 4 2 2
+30 seti 5 4 2
