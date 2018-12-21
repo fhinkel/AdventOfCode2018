@@ -107,39 +107,40 @@ let main = async () => {
 
     let instructions = [];
     for (let line of inputs) {
-        let [ops, a, b, output] = line.split(' ');
+        let [, ops, a, b, output] = line.split(' ');
         instructions.push([ops, Number(a), Number(b), Number(output)]);
     }
 
     let register = [0, 0, 0, 0, 0, 0];
     let ip = 0;
-    while (false && ip < instructions.length) {
+    while (ip < instructions.length) {
         let [ops, a, b, output] = instructions[ip];
-        console.log(`Line number: ${ip + 2}, ${ops}, ${a}, ${b}, ${output}`)
+        console.log(`${ip}, ${ops}, ${a}, ${b}, ${output}`)
         register[output] = opcodes.get(ops)(a, b, register);
         ip = register[instructionRegister];
         ip = ip + 1;
         register[instructionRegister] = ip;
     }
-
+    console.log(register[3]);
+    console.log(register);
 
     // want x0 === x3
-    
-    let x3 = 0;
-    for(let i = 0; i < 1000; i++) {
-        let start = x3;
-        let count = 1000000;
-        while ((x3 | 65536 >= 256) && count > 0) {
-            x3 += ((( x3) | 65536) & 255 & 16777215) * 65899 & 16777215;
-            count--;
-        }
-        if (count !== 0) {
-            console.log(start, x3);
-        }
-        start++;
-        x3 = start;
-    }
-    console.log(register[0]);
+
+    // let x3 = 0;
+    // for(let i = 0; i < 1000; i++) {
+    //     let start = x3;
+    //     let count = 1000000;
+    //     while ((x3 | 65536 >= 256) && count > 0) {
+    //         x3 += ((( x3) | 65536) & 255 & 16777215) * 65899 & 16777215;
+    //         count--;
+    //     }
+    //     if (count !== 0) {
+    //         console.log(start, x3);
+    //     }
+    //     start++;
+    //     x3 = start;
+    // }
+    // console.log(register[0]);
 }
 
 main();
