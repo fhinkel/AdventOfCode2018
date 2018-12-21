@@ -112,15 +112,38 @@ let main = async () => {
         instructions.push([ops, Number(a), Number(b), Number(output)]);
     }
 
-    let register = [0, 0, 0, 0, 0, 0];
+    let register = [1, 0, 0, 0, 0, 0];
     let ip = 0;
-    while (ip < instructions.length && ip >= 0) {
+    while (ip < instructions.length) {
+        if (ip === 3 && register[1] !== 0) { // gtrr 3 4 5
+            if (register[4] % register[1] === 0) {
+                register[0] = register[0] + register[1];
+            }
+            register[3] = register[4] + 1;
+            register[5] = 1; // Now the comparison is true
+            ip = 12;
+            continue;
+        }
         let [ops, a, b, output] = instructions[ip];
         register[output] = opcodes.get(ops)(a, b, register);
         ip = register[instructionRegister];
         ip = ip + 1;
         register[instructionRegister] = ip;
     }
+
+    // while(!(x3 > x4)) {
+    //     if(x1*x3 === x4) {
+    //         x0 = x0 + x1;
+    //     } 
+    //     x3++;
+    // } 
+    // same as 
+    // if(x4%x1 === 0) {
+    //     x0 = x0 + x1;
+    // }
+    // x3 = x4+1;
+
+
 
     console.log(register[0]);
 }
