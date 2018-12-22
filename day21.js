@@ -114,47 +114,27 @@ let main = async () => {
     let register = [0, 0, 0, 0, 0, 0];
     let ip = 0;
     let m = new Set();
-    let sequence = [];
-    let count = 0
-    while (ip < instructions.length && count < 3) {
+    let last;
+    while (ip < instructions.length) {
         if (ip === 28) {
-            count++;
             let n = register[3];
-            sequence.push(n);
-            console.log(n);
+            if (m.has(n)) {
+                console.log('Found repeat, last number: ', last);
+                return;
+            }
+            m.add(n);
+            last = n;
         }
         let [ops, a, b, output] = instructions[ip];
         register[output] = opcodes.get(ops)(a, b, register);
         ip = register[instructionRegister];
         ip = ip + 1;
-        // if (ip === 18) {
-        //     register[1] = Math.floor(register[1] / 256);
-        //     ip = 8;
-        // }
+        if (ip === 18) {
+            register[1] = Math.floor(register[1] / 256);
+            ip = 8;
+        }
         register[instructionRegister] = ip;
     }
-    console.log(register)
-
-    
-    // 6578059 too high
-    // 8021722
-
-    // do {
-    //     x3 = 4921097; // ip 8
-    //     x4 = r1 & 255;
-    //     r3 = r3 + r4;
-    //     r3 = r3 & 16777215;
-    //     r3 = r3 * 65899;
-    //     r3 = r3 & 16777215;
-
-    //     if (256 <= r1) { // ip 13
-    //         r1 = Math.floor(r1 / 256);
-    //         if (r1 === 0) {
-    //             console.log(registers);
-    //             throw new Error();
-    //         }
-    //     }
-    // } while (x3 !== x0)
 }
 
 
