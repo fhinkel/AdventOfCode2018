@@ -114,6 +114,10 @@ let main = async () => {
     let register = [0, 0, 0, 0, 0, 0];
     let ip = 0;
     while (ip < instructions.length) {
+        if (ip === 28) {
+            // console.log(register[3]);
+            // console.log(register);
+        }
         let [ops, a, b, output] = instructions[ip];
         console.log(`${ip}, ${ops}, ${a}, ${b}, ${output}`)
         register[output] = opcodes.get(ops)(a, b, register);
@@ -124,23 +128,25 @@ let main = async () => {
     console.log(register[3]);
     console.log(register);
 
-    // want x0 === x3
+    do {
+        x3 = 4921097; // ip 8
+        x4 = r1 & 255;
+        r3 = r3 + r4;
+        r3 = r3 & 16777215;
+        r3 = r3 * 65899;
+        r3 = r3 & 16777215;
 
-    // let x3 = 0;
-    // for(let i = 0; i < 1000; i++) {
-    //     let start = x3;
-    //     let count = 1000000;
-    //     while ((x3 | 65536 >= 256) && count > 0) {
-    //         x3 += ((( x3) | 65536) & 255 & 16777215) * 65899 & 16777215;
-    //         count--;
-    //     }
-    //     if (count !== 0) {
-    //         console.log(start, x3);
-    //     }
-    //     start++;
-    //     x3 = start;
-    // }
-    // console.log(register[0]);
+
+        // r1 = Math.floor(r1 / 256);
+
+        if (256 <= r1) { // ip 13
+            r4 = 0;
+            while ((r4 + 1) * 256 <= r1) {  // ip20
+                r4++
+            }
+            r1 = r4;
+        }
+    } while (x3 !== x0)
 }
 
 main();
