@@ -53,16 +53,64 @@ let main = async () => {
     let riskLevel = 0;
     for (let x = 0; x < width; x++) {
         for (let y = 0; y < height; y++) {
-            riskLevel += m.get(hash(x, y)) % 3;
+            const currentRisk = m.get(hash(x, y)) % 3;
+            riskLevel += currentRisk;
+            m.set(hash(x, y), currentRisk);
         }
     }
-    // console.log(m)
-
-    // console.log(m.get(hash(0, 1)))
-    // console.log(m.get(hash(1, 0)))
-    // console.log(m.get(hash(1, 1)))
-
     console.log(riskLevel);
+
+    let start = [0, 0];
+    const tools = ['CT', 'CN', 'TN'];
+
+    let queue = [start];
+    let dxDy = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+
+    // <hash(x,y), time spent>
+    let timeMap = new Map();
+    let tool = 'T';
+    console.log(queue)
+    while (queue.length !== 0) {
+        console.log(queue);
+        let [x,y] = queue[queue.length - 1];
+        for (let [dx, dy] of dxDy) {
+            if(x+dx < 0 || x+dx > targetX || y+dy < 0 || y+dy > targetY) {
+                continue;
+            }
+            let next = [x+dx, y+dy];
+            let terrain = m.get(hash(...next));
+            if( !m.has(hash(...next))) {
+                console.log(`not there: ${x}, ${y} -> ${next}: ${terrain}`);
+                return;
+            }
+            // console.log( hash(...next));
+            // console.log(`${x}, ${y} -> ${next}: ${terrain}`)
+            let prevTime = timeMap.get(hash(x,y));
+            prevTime++;
+            if(tools[terrain].split('').indexOf(tool) === -1 ) {
+                prevTime += 7;
+                let prevTerrain = m.get(hash(x,y));
+                if(prevTerrain === 0 && terrain === 1) {
+                    tool = 'C'
+                } else if(prevTerrain === 0 && terrain === 2) {
+                    tool = 'T'
+                }else if(prevTerrain === 1 && terrain === 2) {
+                    tool = 'N'
+                }else if(prevTerrain === 1 && terrain === 0) {
+                    tool = 'C'
+                } else if(prevTerrain === 2 && terrain === 0) {
+                    tool = 'T'
+                }else if(prevTerrain === 2 && terrain === 1) {
+                    tool = 'N'
+                }
+            }
+            let fastest =  Math.min(prevTime, timeMap.get(hash(...next)) || Number.MAX_SAFE_INTEGER);
+            timeMap.set(hash(...next), fastest);
+        }
+        queue.shift();
+    }
+
+    console.log(timeMap.get(hash(targetX, targetY)));
 }
 
 main();
