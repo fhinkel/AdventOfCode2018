@@ -1,25 +1,23 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    // let res = await fs.readFile('./input22.txt');
-    let res = await fs.readFile('./testInput.txt');
+    let res = await fs.readFile('./input22.txt');
+    // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
     return inputs;
 }
 
-let hash = (x, y, tool) => x * 10000 + y * 10 + (tool || 0);
+const Y_LENGTH = 10000
+let hash = (x, y, tool) => x * 10 * Y_LENGTH + y * 10 + (tool || 0);
 
 
 let main = async () => {
-    // depth: 510
-    // target: 10,10
     let inputs = await readInput();
     let [, depth] = (inputs[0]).split(' ').map(Number);
     let target = (inputs[1].split(' '))[1];
     let [targetX, targetY] = target.split(',').map(Number);
-    // [targetX, targetY] = [1,1]
-    let height = 2*(targetY + 1);
-    let width = 2*(targetX + 1);
+    let height = 5 + (targetY + 1);
+    let width = 50 + (targetX + 1);
 
     console.log(`${width}x${height}`);
     let m = new Map();
@@ -51,15 +49,12 @@ let main = async () => {
         }
     }
 
-    let riskLevel = 0;
     for (let x = 0; x < width; x++) {
         for (let y = 0; y < height; y++) {
             const currentRisk = m.get(hash(x, y)) % 3;
-            riskLevel += currentRisk;
             m.set(hash(x, y), currentRisk);
         }
     }
-    console.log(riskLevel);
     // [rocky, wet, narrow]
     // [N, T, C]
     let tool = 1;
@@ -68,12 +63,10 @@ let main = async () => {
     let heap = [start]; // Lol, "heap"
     let dxDy = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 
-    // <hash(x,y,tool), time spent>
+    // <hash(x, y, tool), time spent>
     let timeMap = new Map();
     while (heap.length > 0) {
-        console.log('heap size', heap.length, '- timings map size', timeMap.size);
         let [min, x, y, tool] = heap.shift();
-        console.log(x, y)
         let bestTime = timeMap.get(hash(x, y, tool)) || Number.MAX_SAFE_INTEGER;
         if (bestTime <= min) {
             continue;
@@ -95,12 +88,10 @@ let main = async () => {
             }
 
             let terrain = m.get(hash(x + dx, y + dy));
-            console.log('terrain', terrain, tool)
             if (terrain === tool) {
                 // can't got there
                 continue;
             }
-
             heap.push([min + 1, x + dx, y + dy, tool]);
         }
 
@@ -113,22 +104,21 @@ let main = async () => {
         let temp = new Map();
         for (let [min, x, y, t] of heap) {
             if (!temp.get(hash(x, y, t))) {
-                temp.set(hash(x, y, t), min);
+                let bestTime = timeMap.get(hash(x, y, t)) || Number.MAX_SAFE_INTEGER;
+                if (bestTime > min) {
+                    temp.set(hash(x, y, t), min);
+                }
             }
         }
-        console.log(`before ${heap}`)
+
         heap = []
         for (let [key, v] of [...temp.entries()]) {
-            console.log(key)
             let t = key % 10;
             key = Math.floor(key / 10);
-            let y = key % 1000;
-            let x = Math.floor(key / 1000);
-            console.log(x,y,t)
+            let y = key % Y_LENGTH;
+            let x = Math.floor(key / Y_LENGTH);
             heap.push([v, x, y, t])
         }
-        console.log(`after ${heap}`)
-
     }
 }
 
