@@ -78,7 +78,10 @@ let main = async () => {
         timeMap.set(hash(x, y, tool), min);
         for (let i = 0; i < 3; i++) {
             if (i !== tool && i !== m.get(hash(x, y))) {
-                heap.push([min + 7, x, y, i]);
+                let bt = timeMap.get(hash(x, y, i)) || Number.MAX_SAFE_INTEGER;
+                if (bt > min + 7) {
+                    heap.push([min + 7, x, y, i]);
+                }
             }
         }
 
@@ -92,7 +95,10 @@ let main = async () => {
                 // can't got there
                 continue;
             }
-            heap.push([min + 1, x + dx, y + dy, tool]);
+            let bt = timeMap.get(hash(x + dx, y + dy, tool)) || Number.MAX_SAFE_INTEGER;
+            if (bt > min + 1) {
+                heap.push([min + 1, x + dx, y + dy, tool]);
+            }
         }
 
         heap.sort((a, b) => {
@@ -104,10 +110,7 @@ let main = async () => {
         let temp = new Map();
         for (let [min, x, y, t] of heap) {
             if (!temp.get(hash(x, y, t))) {
-                let bestTime = timeMap.get(hash(x, y, t)) || Number.MAX_SAFE_INTEGER;
-                if (bestTime > min) {
-                    temp.set(hash(x, y, t), min);
-                }
+                temp.set(hash(x, y, t), min);
             }
         }
 
