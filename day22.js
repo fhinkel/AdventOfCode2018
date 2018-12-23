@@ -7,7 +7,7 @@ let readInput = async () => {
     return inputs;
 }
 
-let hash = (x, y) => x * 1000 + y;
+let hash = (x, y, tool) => x * 10000 + y * 10 + (tool || 0);
 
 
 let main = async () => {
@@ -17,6 +17,7 @@ let main = async () => {
     let [, depth] = (inputs[0]).split(' ').map(Number);
     let target = (inputs[1].split(' '))[1];
     let [targetX, targetY] = target.split(',').map(Number);
+    // [targetX, targetY] = [1,1]
     let height = targetY + 1;
     let width = targetX + 1;
 
@@ -59,58 +60,76 @@ let main = async () => {
         }
     }
     console.log(riskLevel);
+    // [rocky, wet, narrow]
+    // [N, T, C]
+    let tool = 1;
+    let start = [0, 0, 0, tool];
 
-    let start = [0, 0];
-    const tools = ['CT', 'CN', 'TN'];
-
-    let queue = [start];
+    let heap = [start]; // Lol, "heap"
     let dxDy = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 
-    // <hash(x,y), time spent>
+    // <hash(x,y,tool), time spent>
     let timeMap = new Map();
-    let tool = 'T';
-    console.log(queue)
-    while (queue.length !== 0) {
-        console.log(queue);
-        let [x,y] = queue[queue.length - 1];
+    while (heap.length > 0) {
+        console.log('heap size', heap.length, '- timings map size', timeMap.size);
+        let [min, x, y, tool] = heap.shift();
+        console.log(x, y)
+        let bestTime = timeMap.get(hash(x, y, tool)) || Number.MAX_SAFE_INTEGER;
+        if (bestTime <= min) {
+            continue;
+        }
+        if (targetX === x && targetY === y && tool === 1) {
+            console.log('Minimum', min);
+            return;
+        }
+        timeMap.set(hash(x, y, tool), min);
+        for (let i = 0; i < 3; i++) {
+            if (i !== tool && i !== m.get(hash(x, y))) {
+                heap.push([min + 7, x, y, i]);
+            }
+        }
+
         for (let [dx, dy] of dxDy) {
-            if(x+dx < 0 || x+dx > targetX || y+dy < 0 || y+dy > targetY) {
+            if (x + dx < 0 || x + dx > targetX || y + dy < 0 || y + dy > targetY) {
                 continue;
             }
-            let next = [x+dx, y+dy];
-            let terrain = m.get(hash(...next));
-            if( !m.has(hash(...next))) {
-                console.log(`not there: ${x}, ${y} -> ${next}: ${terrain}`);
-                return;
-            }
-            // console.log( hash(...next));
-            // console.log(`${x}, ${y} -> ${next}: ${terrain}`)
-            let prevTime = timeMap.get(hash(x,y));
-            prevTime++;
-            if(tools[terrain].split('').indexOf(tool) === -1 ) {
-                prevTime += 7;
-                let prevTerrain = m.get(hash(x,y));
-                if(prevTerrain === 0 && terrain === 1) {
-                    tool = 'C'
-                } else if(prevTerrain === 0 && terrain === 2) {
-                    tool = 'T'
-                }else if(prevTerrain === 1 && terrain === 2) {
-                    tool = 'N'
-                }else if(prevTerrain === 1 && terrain === 0) {
-                    tool = 'C'
-                } else if(prevTerrain === 2 && terrain === 0) {
-                    tool = 'T'
-                }else if(prevTerrain === 2 && terrain === 1) {
-                    tool = 'N'
-                }
-            }
-            let fastest =  Math.min(prevTime, timeMap.get(hash(...next)) || Number.MAX_SAFE_INTEGER);
-            timeMap.set(hash(...next), fastest);
-        }
-        queue.shift();
-    }
 
-    console.log(timeMap.get(hash(targetX, targetY)));
+            let terrain = m.get(hash(x + dx, y + dy));
+            console.log('terrain', terrain, tool)
+            if (terrain === tool) {
+                // can't got there
+                continue;
+            }
+
+            heap.push([min + 1, x + dx, y + dy, tool]);
+        }
+
+        heap.sort((a, b) => {
+            let [minA, , ,] = a;
+            let [minB, , ,] = b;
+            return minA - minB;
+        });
+
+        let temp = new Map();
+        for (let [min, x, y, t] of heap) {
+            if (!temp.get(hash(x, y, t))) {
+                temp.set(hash(x, y, t), min);
+            }
+        }
+        console.log(`before ${heap}`)
+        heap = []
+        for (let [key, v] of [...temp.entries()]) {
+            console.log(key)
+            let t = key % 10;
+            key = Math.floor(key / 10);
+            let y = key % 1000;
+            let x = Math.floor(key / 1000);
+            console.log(x,y,t)
+            heap.push([v, x, y, t])
+        }
+        console.log(`after ${heap}`)
+
+    }
 }
 
 main();
