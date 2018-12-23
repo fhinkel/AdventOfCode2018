@@ -7,7 +7,8 @@ let readInput = async () => {
     return inputs;
 }
 
-const SPACER = 100000000n;
+const SPACER = 1000000000n; // 1 billion - 10 ^ 9
+          //    271374737
 
 h = (x, y, z) => BigInt(x) * SPACER * SPACER + BigInt(y) * SPACER + BigInt(z);
 let unhash = (hash) => {
@@ -48,16 +49,24 @@ markAllPoints = (c, r, numberOfBotsInRange) => {
     }
 }
 
-let main = async () => {
-    let inputs = await readInput();
+let parseInput = (inputs) => {
     let nanobots = new Map();
-
+    let max = 0;
     for (const line of inputs) {
         const m = line.match(/^pos=<(-?\d+),(-?\d+),(-?\d+)>, r=(\d+)$/)
         const [x, y, z] = [m[1], m[2], m[3]].map(Number);
+        if(max < Math.abs(x)) {
+            max = x;
+        }
         const r = Number(m[4]);
         nanobots.set(h(x, y, z), r);
     }
+    return [nanobots, max];
+}
+
+let main = async () => {
+    let inputs = await readInput();
+    let [nanobots, width] = parseInput(inputs);
 
     // < hash, number of bots in range>
     let numberOfBotsInRange = new Map();
