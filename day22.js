@@ -90,7 +90,7 @@ let main = async () => {
         }
 
         for (let [dx, dy] of dxDy) {
-            if (x + dx < 0 || x + dx > targetX || y + dy < 0 || y + dy > targetY) {
+            if (x + dx < 0 || x + dx >= width || y + dy < 0 || y + dy >= height) {
                 continue;
             }
 
