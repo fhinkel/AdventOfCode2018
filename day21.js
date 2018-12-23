@@ -129,10 +129,10 @@ let main = async () => {
         register[output] = opcodes.get(ops)(a, b, register);
         ip = register[instructionRegister];
         ip = ip + 1;
-        if (ip === 18) {
-            register[1] = Math.floor(register[1] / 256);
-            ip = 8;
-        }
+        // if (ip === 18) {
+        //     register[1] = Math.floor(register[1] / 256);
+        //     ip = 8;
+        // }
         register[instructionRegister] = ip;
     }
 }
