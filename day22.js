@@ -18,8 +18,8 @@ let main = async () => {
     let target = (inputs[1].split(' '))[1];
     let [targetX, targetY] = target.split(',').map(Number);
     // [targetX, targetY] = [1,1]
-    let height = targetY + 1;
-    let width = targetX + 1;
+    let height = 2*(targetY + 1);
+    let width = 2*(targetX + 1);
 
     console.log(`${width}x${height}`);
     let m = new Map();
