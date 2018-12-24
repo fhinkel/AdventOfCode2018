@@ -35,14 +35,15 @@ let main = async () => {
 
     let gridsize = max[0] - min[0];
 
+    console.log(min, max);
     gridsize = 1;
     while (gridsize < max[0] - min[0]) {
         gridsize *= 2;
     }
-
+    console.log(gridsize);
     while (true) {
         let maxCount = 0;
-        let best;
+        let bestGrid;
 
         for (let x = min[0]; x < max[0] + 1; x += gridsize) {
             for (let y = min[1]; y < max[1] + 1; y += gridsize) {
@@ -56,23 +57,23 @@ let main = async () => {
                     }
                     if (maxCount < count) {
                         maxCount = count;
-                        best = [x, y, z];
+                        bestGrid = [x, y, z];
                     }
                     else if (maxCount === count) {
-                        if (!best || manhattanD(...best) < manhattanD(x, y, z)) {
-                            best = [x, y, z];
+                        if (!bestGrid || manhattanD(x, y, z) < manhattanD(...bestGrid)) {
+                            bestGrid = [x, y, z];
                         }
                     }
                 }
             }
         }
         if (gridsize === 1) {
-            console.log(manhattanD(...best));
+            console.log(manhattanD(...bestGrid));
             return;
         }
         for (let i = 0; i < 3; i++) {
-            min[i] = best[i] - gridsize;
-            max[i] = best[i] + gridsize;
+            min[i] = bestGrid[i] - gridsize;
+            max[i] = bestGrid[i] + gridsize;
         }
 
         gridsize = Math.floor(gridsize / 2);
