@@ -1,111 +1,82 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    // let res = await fs.readFile('./input23.txt');
-    let res = await fs.readFile('./testInput.txt');
+    let res = await fs.readFile('./input23.txt');
+    // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
     return inputs;
 }
 
-const SPACER = 1000000000n; // 1 billion - 10 ^ 9
-          //    271374737
-
-h = (x, y, z) => BigInt(x) * SPACER * SPACER + BigInt(y) * SPACER + BigInt(z);
-let unhash = (hash) => {
-    const z = hash % SPACER;
-    hash = (hash / SPACER);
-    const y = hash % SPACER
-    const x = (hash / SPACER);
-    return [x, y, z].map(Number);
-}
-let dist = (a, b) => {
-    let res = 0;
-    for (let i = 0; i < a.length; i++) {
-        res += Math.abs(a[i] - b[i])
-    }
-    return res;
-}
-
-markAllPoints = (c, r, numberOfBotsInRange) => {
-    let points = new Set();
-    for (let dx = 0; dx <= r; dx++) {
-        for (let dy = 0; dy <= r - dx; dy++) { // sum = dy+dz
-            let dz = r - dx - dy;
-            let direction = [[1, 1, 1], [1, 1, -1],
-            [1, -1, 1], [1, -1, -1],
-            [1, -1, 1], [1, -1, -1],
-            [-1, 1, 1], [-1, -1, -1]];
-            for (const d of direction) {
-                const point = [c[0] + dx * d[0],
-                c[1] + dy * d[1],
-                c[2] + dz * d[2]];
-                if (!points.has(h(...point))) {
-                    let count = numberOfBotsInRange.get(h(...point)) || 0;
-                    numberOfBotsInRange.set(h(...point), count + 1);
-                }
-                points.add(h(...point));
-            }
-        }
-    }
-}
-
 let parseInput = (inputs) => {
-    let nanobots = new Map();
-    let max = 0;
+    let nanobots = [];
+    let max = [0, 0, 0];
+    let min = [0, 0, 0];
     for (const line of inputs) {
         const m = line.match(/^pos=<(-?\d+),(-?\d+),(-?\d+)>, r=(\d+)$/)
-        const [x, y, z] = [m[1], m[2], m[3]].map(Number);
-        if(max < Math.abs(x)) {
-            max = x;
+        const bot = [m[1], m[2], m[3]].map(Number);
+        for (let i = 0; i < 3; i++) {
+            if (max[i] < bot[i]) {
+                max[i] = bot[i];
+            } if (min[i] > bot[i]) {
+                min[i] = bot[i];
+            }
         }
         const r = Number(m[4]);
-        nanobots.set(h(x, y, z), r);
+        nanobots.push([...bot, r]);
     }
-    return [nanobots, max];
+    return [nanobots, min, max];
 }
+
+let manhattanD = (x, y, z) => Math.abs(x) + Math.abs(y) + Math.abs(z);
 
 let main = async () => {
     let inputs = await readInput();
-    let [nanobots, width] = parseInput(inputs);
+    let [nanobots, min, max] = parseInput(inputs);
 
-    // < hash, number of bots in range>
-    let numberOfBotsInRange = new Map();
-    for (const [hash, r] of [...nanobots]) {
-        for (let i = 0; i <= r; i++) {
-            markAllPoints(unhash(hash), i, numberOfBotsInRange);
-        }
+    let gridsize = max[0] - min[0];
+
+    gridsize = 1;
+    while (gridsize < max[0] - min[0]) {
+        gridsize *= 2;
     }
 
-    let maxCount = 0;
-    let maxHashes = [];
-    for (const [hash, count] of [...numberOfBotsInRange.entries()]) {
-        if (count > maxCount) {
-            maxHashes = [];
-            maxCount = count;
-            maxHashes.push(hash);
-        } else if (count === maxCount) {
-            maxHashes.push(hash);
+    while (true) {
+        let maxCount = 0;
+        let best;
+
+        for (let x = min[0]; x < max[0] + 1; x += gridsize) {
+            for (let y = min[1]; y < max[1] + 1; y += gridsize) {
+                for (let z = min[2]; z < max[2] + 1; z += gridsize) {
+                    let count = 0;
+                    for (const [ax, ay, az, r] of nanobots) {
+                        let dist = Math.abs(x - ax) + Math.abs(y - ay) + Math.abs(z - az);
+                        if (r > dist) {
+                            count++;
+                        }
+                    }
+                    if (maxCount < count) {
+                        maxCount = count;
+                        best = [x, y, z];
+                    }
+                    else if (maxCount === count) {
+                        if (!best || manhattanD(...best) < manhattanD(x, y, z)) {
+                            best = [x, y, z];
+                        }
+                    }
+                }
+            }
         }
-    }
-
-    let points = [];
-    let minDist = Number.POSITIVE_INFINITY;
-    console.log(maxHashes);
-
-
-
-    for (let hash of maxHashes) {
-        const [x, y, z] = unhash(hash);
-        let dist = x + y + z;
-        if (dist < minDist) {
-            points.push([x, y, z]);
+        if (gridsize === 1) {
+            console.log(manhattanD(...best));
+            return;
         }
+        for (let i = 0; i < 3; i++) {
+            min[i] = best[i] - gridsize;
+            max[i] = best[i] + gridsize;
+        }
+
+        gridsize = Math.floor(gridsize / 2);
     }
-    points.sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]));
-    let destination = points[0];
-    console.log(destination.reduce((v,acc) => v + acc));
-
-
 }
 
 main();
