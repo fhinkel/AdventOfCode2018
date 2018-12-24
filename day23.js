@@ -35,15 +35,9 @@ let main = async () => {
 
     let gridsize = max[0] - min[0];
 
-    console.log(min, max);
-    gridsize = 1;
-    while (gridsize < max[0] - min[0]) {
-        gridsize *= 2;
-    }
-    console.log(gridsize);
-    while (true) {
+    let bestGrid;
+    while (gridsize > 0) {
         let maxCount = 0;
-        let bestGrid;
 
         for (let x = min[0]; x < max[0] + 1; x += gridsize) {
             for (let y = min[1]; y < max[1] + 1; y += gridsize) {
@@ -51,7 +45,7 @@ let main = async () => {
                     let count = 0;
                     for (const [ax, ay, az, r] of nanobots) {
                         let dist = Math.abs(x - ax) + Math.abs(y - ay) + Math.abs(z - az);
-                        if (r > dist) {
+                        if (dist-r<gridsize) {
                             count++;
                         }
                     }
@@ -67,10 +61,6 @@ let main = async () => {
                 }
             }
         }
-        if (gridsize === 1) {
-            console.log(manhattanD(...bestGrid));
-            return;
-        }
         for (let i = 0; i < 3; i++) {
             min[i] = bestGrid[i] - gridsize;
             max[i] = bestGrid[i] + gridsize;
@@ -78,6 +68,8 @@ let main = async () => {
 
         gridsize = Math.floor(gridsize / 2);
     }
+    console.log(manhattanD(...bestGrid));
+    console.log(bestGrid);
 }
 
 main();
