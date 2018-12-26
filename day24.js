@@ -96,107 +96,132 @@ let sortOpponents = (opponents, damageType) => {
     });
 }
 
-let main = async () => {
-    let inputs = await readInput();
-    let [infectionArmy, immuneArmy] = parseInput(inputs);
-
-    let count = 2;
-    while (infectionArmy.length !== 0 && immuneArmy.length !== 0) {
-        count--;
-        let allGroups = [...infectionArmy, ...immuneArmy];
-
-        console.log(allGroups)
-        // Target selection order
-        allGroups.sort((g1, g2) => {
-            if (g1.effectivePower === g2.effectivePower) {
-                return g1.initiative - g2.initiative;
-            }
-            return g1.effectivePower - g2.effectivePower;
-        });
-
-        console.log('total groups', allGroups.length)
-
-        // Select targets
-        for (let i = allGroups.length - 1; i >= 0; i--) {
-            let opponents = infectionArmy;
-            let attacker = allGroups[i];
-            if (attacker.type === 'infection') {
-                opponents = immuneArmy;
-            }
-            let damage = attacker.damage;
-            sortOpponents(opponents, attacker.damage);
-            if (opponents.length === 0) {
-                attacker.opponent = undefined;
-                console.log('no opponents left that can be selected')
-                continue;
-            }
-
-            if (opponents[0].immune.indexOf(damage) !== -1) {
-                attacker.opponent = undefined;
-                console.log(`${attacker.type} #${attacker.number} has only immune opponents`)
-                continue;
-            }
-            attacker.opponent = opponents.shift();
-
-            console.log(attacker.type, attacker.number,
-                attacker.effectivePower, attacker.opponent.number);
-        }
-
-        // Attack order
-        allGroups.sort((g1, g2) => g1.initiative - g2.initiative);
-
-        // Attack opponents
-        for (let i = allGroups.length - 1; i >= 0; i--) {
-            let attacker = allGroups[i];
-            if (!attacker.opponent) {
-                continue;
-            }
-            if (attacker.dead) {
-                continue;
-            }
-            let damageTaken = attacker.effectivePower;
-            if (attacker.opponent.weakness.indexOf(attacker.damage) !== -1) {
-                damageTaken = damageTaken * 2;
-            } else if (attacker.opponent.immune.indexOf(attacker.damage) !== -1) {
-                console.log(Wrong, attacker);
-                throw new Error();
-            }
-            console.log(`Attacking with ${damageTaken} on ${attacker.opponent.hitPoints} per unit`)
-            let killed = Math.min(Math.floor(damageTaken / attacker.opponent.hitPoints), attacker.opponent.numberOfUnits);
-            console.log(`${attacker.type} #${attacker.number} attacks group ${attacker.opponent.number}, killing ${killed}`)
-            attacker.opponent.numberOfUnits -= killed;
-            attacker.opponent.effectivePower = attacker.opponent.numberOfUnits * attacker.opponent.attackDamage;
-            if (attacker.opponent.numberOfUnits === 0) {
-                attacker.opponent.dead = true;
-            }
-        }
-
-        immuneArmy = [];
-        infectionArmy = [];
-        for (let i = allGroups.length - 1; i >= 0; i--) {
-            if (allGroups[i].dead) {
-                continue;
-            }
-            if (allGroups[i].type === 'immune') {
-                immuneArmy.push(allGroups[i]);
-            } else {
-                infectionArmy.push(allGroups[i]);
-            }
-        }
-        console.log();
+let boostImmuneSystem = (army, boost) => {
+    for (let i = 0; i < army.length; i++) {
+        army[i].attackDamage += boost;
+        army[i].effectivePower = army[i].attackDamage * army[i].numberOfUnits;
     }
-    let winner = infectionArmy;
-    if (immuneArmy.length > 0) {
-        winner = immuneArmy;
-    }
-    console.log(winner[0].type)
-    let sum = winner.reduce((acc, g) => {
-        return g.numberOfUnits + acc
-    }, 0)
-    console.log(sum);
-
-    // 19947 too low
 }
 
+let main = async () => {
+    let inputs = await readInput();
+    let boostUpper = 110;
+    let boostLower = 0;
+
+    let boost = Math.floor((boostUpper - boostLower) / 2);
+    let count = 0;
+    while (boostLower < boostUpper && count < 20) {
+        let [infectionArmy, immuneArmy] = parseInput(inputs);
+        count++;
+        boostImmuneSystem(immuneArmy, boost);
+
+        while (infectionArmy.length !== 0 && immuneArmy.length !== 0) {
+            let allGroups = [...infectionArmy, ...immuneArmy];
+
+            // Target selection order
+            allGroups.sort((g1, g2) => {
+                if (g1.effectivePower === g2.effectivePower) {
+                    return g1.initiative - g2.initiative;
+                }
+                return g1.effectivePower - g2.effectivePower;
+            });
+
+            // Select targets
+            for (let i = allGroups.length - 1; i >= 0; i--) {
+                let opponents = infectionArmy;
+                let attacker = allGroups[i];
+                if (attacker.type === 'infection') {
+                    opponents = immuneArmy;
+                }
+                let damage = attacker.damage;
+                sortOpponents(opponents, attacker.damage);
+                if (opponents.length === 0) {
+                    attacker.opponent = undefined;
+                    continue;
+                }
+
+                if (opponents[0].immune.indexOf(damage) !== -1) {
+                    attacker.opponent = undefined;
+                    continue;
+                }
+                attacker.opponent = opponents.shift();
+            }
+
+            // Attack order
+            allGroups.sort((g1, g2) => g1.initiative - g2.initiative);
+
+            // Attack opponents
+            for (let i = allGroups.length - 1; i >= 0; i--) {
+                let attacker = allGroups[i];
+                if (!attacker.opponent) {
+                    continue;
+                }
+                if (attacker.dead) {
+                    continue;
+                }
+                let damageTaken = attacker.effectivePower;
+                if (attacker.opponent.weakness.indexOf(attacker.damage) !== -1) {
+                    damageTaken = damageTaken * 2;
+                } else if (attacker.opponent.immune.indexOf(attacker.damage) !== -1) {
+                    console.log(Wrong, attacker);
+                    throw new Error();
+                }
+                let killed = Math.min(Math.floor(damageTaken / attacker.opponent.hitPoints), attacker.opponent.numberOfUnits);
+                attacker.opponent.numberOfUnits -= killed;
+                attacker.opponent.effectivePower = attacker.opponent.numberOfUnits * attacker.opponent.attackDamage;
+                if (attacker.opponent.numberOfUnits === 0) {
+                    attacker.opponent.dead = true;
+                }
+            }
+
+            immuneArmy = [];
+            infectionArmy = [];
+            for (let i = allGroups.length - 1; i >= 0; i--) {
+                if (allGroups[i].dead) {
+                    continue;
+                }
+                if (allGroups[i].type === 'immune') {
+                    immuneArmy.push(allGroups[i]);
+                } else {
+                    infectionArmy.push(allGroups[i]);
+                }
+            }
+        }
+
+        if (immuneArmy.length === 0) {
+            // too low
+            console.log(`Still infected with ${boost} boost`);
+            boostLower = boost;
+        } else {
+            //too high 
+            console.log(`Immune with ${boost} boost`);
+            boostUpper = boost;
+        }
+        boost = Math.floor((boostUpper + boostLower) / 2)
+        console.log(boost)
+        if (boost === 98) {
+            if (immuneArmy.length === 0) {
+                boost = 102;
+            } else {
+                boost = 90;
+            }
+        }
+        if (boost === 96) {
+            boost = 92
+        }
+        if (boost === 97) {
+            boost = 100
+        }
+        let winner = infectionArmy;
+        if (immuneArmy.length > 0) {
+            winner = immuneArmy;
+        }
+        console.log(winner[0].type)
+        let sum = winner.reduce((acc, g) => {
+            return g.numberOfUnits + acc
+        }, 0)
+        console.log(sum);
+    }
+}
 
 main();
