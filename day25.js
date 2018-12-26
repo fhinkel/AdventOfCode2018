@@ -7,11 +7,7 @@ let readInput = async () => {
 }
 
 let manhattanD = (a, b) => {
-    let d = 0;
-    for (let i = 0; i < a.length; i++) {
-        d += Math.abs(a[i] - b[i]);
-    }
-    return d;
+    return a.reduce((acc, _, i) => acc + Math.abs(a[i] - b[i]), 0)
 }
 
 let main = async () => {
