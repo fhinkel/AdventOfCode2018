@@ -1,11 +1,8 @@
-const fetch = require('node-fetch');
 const fs = require('fs').promises;
 
 let readInput = async () => {
     let res = await fs.readFile('./input2.txt');
-    // let res = await fs.readFile('./testInput.txt');
     let inputs = res.toString().split('\n');
-    // console.log(inputs);
     return inputs
 }
 
@@ -32,7 +29,7 @@ let findMultiples = (s) => {
     return [counts.includes(2), counts.includes(3)];
 }
 
-let nearIds = async (inputs) => {
+let nearIds = (inputs) => {
     for (let i = 0; i < inputs.length; i++) {
         for (let j = 1; j < inputs.length; j++) {
             if (distance(inputs[i], inputs[j]) === 1) {
@@ -53,8 +50,7 @@ let nearIds = async (inputs) => {
 
 let main = async () => {
     let inputs = await readInput();
-
-    let f = await nearIds(inputs);
+    let f = nearIds(inputs);
     console.log(f);
 }
 
