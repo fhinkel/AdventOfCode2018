@@ -2,6 +2,10 @@ const fs = require('fs').promises;
 const text2png = require('text2png');
 const vision = require('@google-cloud/vision');
 
+const pngToJpeg = require('png-to-jpeg');
+
+
+
 
 let readInput = async () => {
     let res = await fs.readFile('./input10.txt');
@@ -64,11 +68,11 @@ let printBoard = async (inputs) => {
             max = Math.max(...xs);
         }
     }
-    
+
     let s = '\n\n\n\n\n';
     for (let y of ys) {
         let row = '         ';
-        
+
         let xs = reversePoints.get(y);
         for (let i = min; i <= max; i++) {
             if (xs.has(i)) {
@@ -81,16 +85,22 @@ let printBoard = async (inputs) => {
         s += row;
         s += '\n';
     }
-    s += '\n\n\n\n\n';
-    
+     s += '\n\n\n\n\n';
+
     // console.log(s);
-    let fileName = 'out.png';
-    await fs.writeFile(fileName, text2png(s, {font: '30px courier', bgColor: 'white'}));
-    // console.log(`File in ${fileName}`);
+    // let fileName = 'out.png';
+    let buffer = await text2png(s, { font: '30px courier', bgColor: 'white' });
+    // let buffer = await fs.readFile(fileName);
+    let output = await pngToJpeg({ quality: 90 })(buffer);
+    await fs.writeFile('out.jpeg', output);
 
     const client = new vision.ImageAnnotatorClient();
-    const [result] = await client.documentTextDetection(fileName);
+    const [result] = await client.documentTextDetection(buffer);
     console.log(`Full text: ${result.fullTextAnnotation.text}`);
+
+    if('PLBPGFRR'!== result.fullTextAnnotation.text.trim()) {
+        console.log('Wrong text!');
+    }
 
 }
 

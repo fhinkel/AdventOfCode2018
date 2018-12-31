@@ -11,6 +11,7 @@
   "dependencies": {
     "@google-cloud/vision": "^0.24.0",
     "node-fetch": "^2.3.0",
+    "png-to-jpeg": "^1.0.1",
     "text2png": "^2.1.0"
   },
   "devDependencies": {},
