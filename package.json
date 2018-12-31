@@ -1,14 +1,21 @@
 {
   "name": "adventofcode",
   "version": "1.0.0",
-  "description": "",
+  "description": "[Advent of Code](https://adventofcode.com/2018/about) is an Advent calendar of small programming puzzles for a variety of skill sets and skill levels that can be solved in any programming language you like. [47,000 people](https://adventofcode.com/2018/stats) are playing in 2018.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "node-fetch": "^2.3.0"
-  }
+  "dependencies": {},
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fhinkel/AdventOfCode2018.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fhinkel/AdventOfCode2018/issues"
+  },
+  "homepage": "https://github.com/fhinkel/AdventOfCode2018#readme"
 }
