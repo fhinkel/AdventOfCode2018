@@ -1,4 +1,7 @@
 const fs = require('fs').promises;
+const text2png = require('text2png');
+const vision = require('@google-cloud/vision');
+
 
 let readInput = async () => {
     let res = await fs.readFile('./input10.txt');
@@ -39,7 +42,7 @@ let boardDimensions = (inputs) => {
     return (maxX - minX) * (maxY - minY);
 }
 
-let printBoard = (inputs) => {
+let printBoard = async (inputs) => {
     // <y, [x] >
     let reversePoints = new Map();
     for (let line of inputs) {
@@ -61,19 +64,34 @@ let printBoard = (inputs) => {
             max = Math.max(...xs);
         }
     }
-
+    
+    let s = '\n\n\n\n\n';
     for (let y of ys) {
-        let row = '';
+        let row = '         ';
+        
         let xs = reversePoints.get(y);
         for (let i = min; i <= max; i++) {
             if (xs.has(i)) {
-                row += '#';
+                row += '█';
             } else {
-                row += '.';
+                row += ' ';
             }
         }
-        console.log(row);
+        row += '       ';
+        s += row;
+        s += '\n';
     }
+    s += '\n\n\n\n\n';
+    
+    // console.log(s);
+    let fileName = 'out.png';
+    await fs.writeFile(fileName, text2png(s, {font: '30px courier', bgColor: 'white'}));
+    // console.log(`File in ${fileName}`);
+
+    const client = new vision.ImageAnnotatorClient();
+    const [result] = await client.documentTextDetection(fileName);
+    console.log(`Full text: ${result.fullTextAnnotation.text}`);
+
 }
 
 
@@ -104,10 +122,8 @@ let main = async () => {
 
         newSize = boardDimensions(newInputs);
     }
-    printBoard(inputs);
-    console.log(i);
-
-
+    await printBoard(inputs);
+    // console.log(i);
 }
 
 main();
