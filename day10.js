@@ -87,12 +87,7 @@ let printBoard = async (inputs) => {
     }
      s += '\n\n\n\n\n';
 
-    // console.log(s);
-    // let fileName = 'out.png';
     let buffer = await text2png(s, { font: '30px courier', bgColor: 'white' });
-    // let buffer = await fs.readFile(fileName);
-    let output = await pngToJpeg({ quality: 90 })(buffer);
-    await fs.writeFile('out.jpeg', output);
 
     const client = new vision.ImageAnnotatorClient();
     const [result] = await client.documentTextDetection(buffer);
@@ -100,6 +95,7 @@ let printBoard = async (inputs) => {
 
     if('PLBPGFRR'!== result.fullTextAnnotation.text.trim()) {
         console.log('Wrong text!');
+        throw new Error();
     }
 
 }
