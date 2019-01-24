@@ -1,4 +1,7 @@
 const fs = require('fs').promises;
+const text2png = require('text2png');
+const vision = require('@google-cloud/vision');
+
 
 let readInput = async () => {
     let res = await fs.readFile('./input10.txt');
@@ -62,18 +65,27 @@ let printBoard = (inputs) => {
         }
     }
 
+    let res = '';
     for (let y of ys) {
         let row = '';
         let xs = reversePoints.get(y);
         for (let i = min; i <= max; i++) {
             if (xs.has(i)) {
-                row += '#';
+                row += '█';
             } else {
-                row += '.';
+                row += ' ';
             }
         }
-        console.log(row);
+        // console.log(row);
+        res += '\n' + row;
     }
+
+    res += '\n';
+    res += '\n';
+    res += '\n';
+    res += '\n';
+
+    return res;
 }
 
 
@@ -104,7 +116,24 @@ let main = async () => {
 
         newSize = boardDimensions(newInputs);
     }
-    printBoard(inputs);
+
+
+    let s = printBoard(inputs);
+    console.log(s);
+
+    const fileName = 'out.png';
+    await fs.writeFile(fileName, text2png(s, { color: 'black', bgColor: 'white', font: '30px courier' }));
+
+    // Creates a client
+    const client = new vision.ImageAnnotatorClient();
+
+    // Performs text detection on the local file
+    const [result] = await client.textDetection(fileName);
+    const detections = result.textAnnotations;
+    detections.forEach(text => console.log(text.description));
+
+
+
     console.log(i);
 
 
