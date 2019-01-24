@@ -89,6 +89,23 @@ let printBoard = (inputs) => {
 }
 
 
+const testImage = async(s) => {
+    let rand = Math.random();
+    const fileName = `out/out-${rand}.png`;
+    console.log(fileName);
+    await fs.writeFile(fileName, text2png(s, { color: 'black', bgColor: 'white', font: '30px courier' }));
+
+    // Creates a client
+    const client = new vision.ImageAnnotatorClient();
+
+    // Performs text detection on the local file
+    const [result] = await client.textDetection(fileName);
+    const detections = result.textAnnotations;
+    detections.forEach(text => console.log(text.description));
+    const score = 1;
+    return score;
+}
+
 let main = async () => {
     let inputs = (await readInput());
 
@@ -117,26 +134,15 @@ let main = async () => {
         newSize = boardDimensions(newInputs);
     }
 
-
     let s = printBoard(inputs);
-    console.log(s);
 
-    const fileName = 'out.png';
-    await fs.writeFile(fileName, text2png(s, { color: 'black', bgColor: 'white', font: '30px courier' }));
-
-    // Creates a client
-    const client = new vision.ImageAnnotatorClient();
-
-    // Performs text detection on the local file
-    const [result] = await client.textDetection(fileName);
-    const detections = result.textAnnotations;
-    detections.forEach(text => console.log(text.description));
-
-
-
+    let score = await testImage(s);
+    console.log(score);
     console.log(i);
-
-
 }
+
+
+
+
 
 main();
