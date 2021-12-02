@@ -14,20 +14,38 @@ async function processLineByLine(file) {
   // ('\r\n') in input.txt as a single line break.
 
   const data = [];
+  let increaseCount = 0;
+  let last1;
+  let last2;
+  let last3;
+
+  let i = -1;
 
   for await (const line of rl) {
-    data.push(line);
+    i++;
+
+    let lastSum = last1 + last2 + last3;
+
+    last1 = last2;
+    last2 = last3;
+    last3 = Number(line);
+
+    let currentSum = last1 + last2 + last3;
+
+    if (i < 3) continue;
+
+    if (currentSum > lastSum) increaseCount++;
   }
 
+  console.log(increaseCount);
 
-  
-  fs.writeFileSync("output.txt", data.join('\n'), 'utf-8');
+  // fs.writeFileSync("output.txt", data.join('\n'), 'utf-8');
 }
 
 const main = async () => {
   const path = '.';
   try {
-    const files = glob.sync(`${path}/input1.txt`, {
+    const files = glob.sync(`${path}/*.txt`, {
       ignore: ['node_modules'],
     });
     for (const file of files) {
