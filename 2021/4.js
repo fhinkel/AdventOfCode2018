@@ -58,32 +58,36 @@ async function processLineByLine(file) {
         }
     }
 
-    const smallest = [];
+    const winTime = [];
     for(const board of boards) {
-        smallest.push(bingoTime(board));
+        winTime.push(bingoTime(board));
     }
 
     // console.log(smallest);
 
-    let minIndex;
-    let last = MAX_TRIES;
-    for(const [index, entry] of smallest.entries()) {
-        if (entry < last) {
-            minIndex = index;
+    let maxIndex;
+    let last = 0;
+    for(const [index, entry] of winTime.entries()) {
+        if (entry === MAX_TRIES) {
+            // never wins, skip
+            continue;
+        }
+        if (entry > last) {
+            maxIndex = index;
             last = entry;
         }
     }
 
-    console.log(`The winning board is ${minIndex} (0 indexed) 
-    after ${smallest[minIndex]} numbers, the winning number is ${numbers[smallest[minIndex]]}.`);
+    console.log(`The last winning board is ${maxIndex} (0 indexed) 
+    after ${winTime[maxIndex]} numbers, the winning number is ${numbers[winTime[maxIndex]]}.`);
 
-    const winningBoard = boards[minIndex];
+    const winningBoard = boards[maxIndex];
 
     let sum = 0;
 
     for(const line of winningBoard) {
         for(const [value, index] of line) {
-            if(index > smallest[minIndex]) {
+            if(index > winTime[maxIndex]) {
                 sum  += value; 
             }
         }
@@ -91,7 +95,7 @@ async function processLineByLine(file) {
 
 
     console.log(sum);
-    console.log(sum * numbers[smallest[minIndex]]);
+    console.log(sum * numbers[winTime[maxIndex]]);
 
     // fs.writeFileSync("output.txt", data.join('\n'), 'utf-8');
 }
