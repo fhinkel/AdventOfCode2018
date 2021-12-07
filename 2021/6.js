@@ -21,24 +21,30 @@ async function processLineByLine(file) {
         data.push(...(line.split(',').map(Number)));
     }
 
-    let n = 256;
-
-    let newData = [];
-    for(let i = 0; i < n; i++) {
-        for(const fish of data) { 
-            if(fish === 0) {
-                newData.push(6);
-                newData.push(8);
-            } else {
-                newData.push(fish - 1);
-            }
-        }
-        // console.log(newData);
-        data = [...newData];
-        newData = [];
+    let school = Array(9).fill(0);
+    for (const age of data) {
+        school[age] = (school[age] | 0) + 1;
     }
 
-    console.log(data.length);
+
+    let n = 256;
+
+    let newSchool = [];
+
+    for (let i = 0; i < n; i++) {
+        newSchool[8] = school[0];
+        newSchool[6] = school[0];
+        for (let age = 1; age <=8; age++) {
+            newSchool[age-1] = school[age];
+        }
+        newSchool[6] = newSchool[6] + school[0];
+        // console.log(newData);
+        school = [...newSchool];
+        newSchool = [];
+    }
+
+    const sum = school.reduce((a,b) => a+b, 0);
+    console.log(sum);
 
 
     // fs.writeFileSync("output.txt", data.join('\n'), 'utf-8');
@@ -49,7 +55,7 @@ async function processLineByLine(file) {
 const main = async () => {
     const path = '.';
     try {
-        const files = glob.sync(`${path}/sample.txt`, {
+        const files = glob.sync(`${path}/*.txt`, {
             ignore: ['node_modules'],
         });
         for (const file of files) {
