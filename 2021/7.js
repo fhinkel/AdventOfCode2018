@@ -28,15 +28,18 @@ async function processLineByLine(file) {
 
     const l = data.length;
 
-    const median = l % 2 === 0 ? Math.floor((data[l / 2 - 1] + data[l / 2]) / 2) : data[(l - 1) / 2];
+    const average = Math.floor(data.reduce((a, b) => a + b) / l);
+
+    const maxDiff = Math.max(...data.map(n => Math.abs(n - average)));
 
     let cost = 0;
     for (const pos of data) {
-        cost += Math.abs(pos - median);
+        const diff = Math.abs(pos - average);
+        cost += diff*(diff+1)/2;
 
     }
 
-    console.log(median, cost);
+    console.log(average, cost);
 
 
     // fs.writeFileSync("output.txt", data.join('\n'), 'utf-8');
