@@ -16,27 +16,24 @@ async function processLineByLine(file) {
 
     let res = 0;
     for await (const line of rl) {
-        const [digits, outputs] = line.split('|').map(s => s.trim()).map(s => s.split(' ').map(d=>d.split('').sort().join('')));
+        const [digits, outputs] = line.split('|').map(s => s.trim()).map(s => s.split(' ').map(d => d.split('').sort().join('')));
         // console.log(digits, outputs);
 
-        let letters = new Set();
         let decoded = [];
         for (const digit of digits) {
-            // digit 1
-            if (digit.length === 2) {
-                decoded[1] = digit;
-            }
-            // digit 4
-            if (digit.length === 4) {
-                decoded[4] = digit;
-            }
-            // digit 7
-            if (digit.length === 3) {
-                decoded[7] = digit;
-            }
-            // digit 8
-            if (digit.length === 7) {
-                decoded[8] = digit;
+            switch (digit.length) {
+                case 2:
+                    decoded[1] = digit;
+                    break;
+                case 4:
+                    decoded[4] = digit;
+                    break;
+                case 3:
+                    decoded[7] = digit;
+                    break;
+                case 7:
+                    decoded[8] = digit;
+                    break;
             }
         }
 
@@ -44,11 +41,7 @@ async function processLineByLine(file) {
         for (const digit of digits) {
             if (decoded.includes(digit)) continue;
 
-            let count = 0;
-            for (const letter of digit) {
-                if (decoded[1].split('').includes(letter)) continue
-                count++;
-            }
+            let count = complementCount(digit, decoded[1]);
 
             // digit 3 without right positions
             if (count === 3) {
@@ -66,14 +59,8 @@ async function processLineByLine(file) {
         for (const digit of digits) {
             if (decoded.includes(digit)) continue;
 
-            let count = 0;
-            for (const letter of digit) {
-                if (decoded[3].split('').includes(letter)) continue
-                count++;
-            }
-
             // digit 0 without right positions
-            if (count === 2) {
+            if (complementCount(digit, decoded[3]) === 2) {
                 decoded[0] = digit;
             }
             // left 2, 5, 9
@@ -92,11 +79,7 @@ async function processLineByLine(file) {
         for (const digit of digits) {
             if (decoded.includes(digit)) continue;
 
-            let count = 0;
-            for (const letter of digit) {
-                if (decoded[6].split('').includes(letter)) continue
-                count++;
-            }
+            let count = complementCount(digit, decoded[6]);
 
             // digit 2 without positions from 6
             if (count === 1) {
@@ -108,15 +91,11 @@ async function processLineByLine(file) {
                 decoded[5] = digit;
             }
         }
-        // console.log(decoded);
-
+        
         let s = '';
-        for(const digit of outputs) {
-            const n = decoded.indexOf(digit);
-            s += n;
-
+        for (const digit of outputs) {
+            s += decoded.indexOf(digit);
         }
-        // console.log(s);
         res += Number(s);
     }
     console.log(res);
@@ -125,6 +104,15 @@ async function processLineByLine(file) {
     // fs.writeFileSync("output.txt", data.join('\n'), 'utf-8');
 }
 
+
+const complementCount = (A, B) => {
+    let count = 0;
+    for (const letter of A) {
+        if (B.split('').includes(letter)) continue
+        count++;
+    }
+    return count;
+}
 
 
 const main = async () => {
