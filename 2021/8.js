@@ -19,38 +19,30 @@ async function processLineByLine(file) {
         const [digits, outputs] = line.split('|').map(s => s.trim()).map(s => s.split(' ').map(d=>d.split('').sort().join('')));
         // console.log(digits, outputs);
 
-        let identified = [];
         let letters = new Set();
         let decoded = [];
         for (const digit of digits) {
             // digit 1
             if (digit.length === 2) {
                 decoded[1] = digit;
-                identified.push(digit);
             }
             // digit 4
             if (digit.length === 4) {
                 decoded[4] = digit;
-                identified.push(digit);
-
             }
             // digit 7
             if (digit.length === 3) {
                 decoded[7] = digit;
-                identified.push(digit);
-
             }
             // digit 8
             if (digit.length === 7) {
                 decoded[8] = digit;
-                identified.push(digit);
-
             }
         }
 
         // remove c and f positions (digit 1) to identify 3 and 6
         for (const digit of digits) {
-            if (identified.includes(digit)) continue;
+            if (decoded.includes(digit)) continue;
 
             let count = 0;
             for (const letter of digit) {
@@ -61,12 +53,10 @@ async function processLineByLine(file) {
             // digit 3 without right positions
             if (count === 3) {
                 decoded[3] = digit;
-                identified.push(digit);
             }
             // digit 6 without right positions
             if (count === 5) {
                 decoded[6] = digit;
-                identified.push(digit);
             }
 
             // left 0, 2, 5, 9
@@ -74,7 +64,7 @@ async function processLineByLine(file) {
 
         // remove everything but b and e position (digit 3) to identify 0
         for (const digit of digits) {
-            if (identified.includes(digit)) continue;
+            if (decoded.includes(digit)) continue;
 
             let count = 0;
             for (const letter of digit) {
@@ -82,27 +72,25 @@ async function processLineByLine(file) {
                 count++;
             }
 
-            // digit 3 without right positions
+            // digit 0 without right positions
             if (count === 2) {
                 decoded[0] = digit;
-                identified.push(digit);
             }
             // left 2, 5, 9
         }
 
         // length 6 for digit 9
         for (const digit of digits) {
-            if (identified.includes(digit)) continue;
+            if (decoded.includes(digit)) continue;
             if (digit.length === 6) {
                 decoded[9] = digit;
-                identified.push(digit);
             }
             // left 2, 5
         }
 
         // remove everything but c position (digit 6) to identify 2 and 5
         for (const digit of digits) {
-            if (identified.includes(digit)) continue;
+            if (decoded.includes(digit)) continue;
 
             let count = 0;
             for (const letter of digit) {
@@ -113,13 +101,11 @@ async function processLineByLine(file) {
             // digit 2 without positions from 6
             if (count === 1) {
                 decoded[2] = digit;
-                identified.push(digit);
             }
 
             // digit 5 without positions from 6
             if (count === 0) {
                 decoded[5] = digit;
-                identified.push(digit);
             }
         }
         // console.log(decoded);
