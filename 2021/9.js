@@ -23,9 +23,44 @@ async function processLineByLine(file) {
 
     // console.log(data);
     let risk = 0;
+    let count = 0;
 
-    for (let j = 0; j < data.length; j++) {
-        for (let i = 0; i < data[0].length; i++) {
+    const findBasin = (lowPoint, basins) => {
+        const [j, i] = lowPoint;
+
+        basins[j][i] = 'x'
+        if (i > 0) {
+            if (data[j][i - 1] > data[j][i] && data[j][i - 1] !== 9 && basins[j][i - 1] !== 'x') {
+                basins[j][i - 1] = 'x'
+                findBasin([j, i - 1], basins);
+            }
+        }
+
+        if (i + 1 < data[0].length) {
+            if (data[j][i + 1] > data[j][i] && data[j][i + 1] !== 9 && basins[j][i + 1] !== 'x') {
+                basins[j][i + 1] = 'x'
+                findBasin([j, i + 1], basins);
+            }
+        }
+
+        if (j > 0) {
+            if (data[j - 1][i] > data[j][i] && data[j - 1][i] !== 9 && basins[j - 1][i] !== 'x') {
+                basins[j - 1][i] = 'x'
+                findBasin([j - 1, i], basins);
+            }
+        }
+
+        if (j + 1 < data.length) {
+            if (data[j + 1][i] > data[j][i] && data[j + 1][i] !== 9 && basins[j + 1][i] !== 'x') {
+                basins[j + 1][i] = 'x'
+                findBasin([j + 1, i], basins);
+            }
+        }
+    }
+
+    let sizes = [];
+    for (let j = 0; j < data.length; j++) { // up-down
+        for (let i = 0; i < data[0].length; i++) { // left-right
             let p = data[j][i];
             const left = (i == 0) || data[j][i - 1] > p;
             const right = (i + 1 === data[0].length) || data[j][i + 1] > p;
@@ -33,12 +68,20 @@ async function processLineByLine(file) {
             const down = (j + 1 === data.length) || data[j + 1][i] > p;
             if (left && right && up && down) {
                 risk += p + 1;
+                count++;
+
+                let basins = Array(data.length).fill().map(x => []);
+                findBasin([j, i], basins);
+                let size = basins.flat().filter(x => x === 'x').length;
+                // console.log(`size for ${i},${j} is ${size}`);
+                sizes.push(size);
             }
         }
     }
 
-    console.log(risk);
+    sizes.sort((a,b)=> a-b);
 
+    console.log(sizes.pop() * sizes.pop() * sizes.pop());
 
 
     // fs.writeFileSync("output.txt", data.join('\n'), 'utf-8');
