@@ -51,7 +51,7 @@ async function processLineByLine(file) {
         }
 
         if (octopuses.flat().every(([energy, flashed]) => flashed)) {
-            console.log(`Synchronized after ${s+1} steps`);
+            console.log(`Synchronized after ${s + 1} steps`);
             break;
         }
 
@@ -76,36 +76,25 @@ async function processLineByLine(file) {
     // console.log(octopuses.flat());
 }
 
-const flashNeighbors = (i, j, octopuses) => {
+const update = (i, j, octopuses) => {
     const n = octopuses.length;
-    if (i > 0) {
-        if (j > 0) {
-            octopuses[i - 1][j - 1][0] = octopuses[i - 1][j - 1][0] + 1;
-        }
-        octopuses[i - 1][j][0] = octopuses[i - 1][j][0] + 1;
-        if (j < n - 1) {
-            octopuses[i - 1][j + 1][0] = octopuses[i - 1][j + 1][0] + 1;
-        }
+    if (i >= 0 && i < n && j >= 0 && j < n) {
+        octopuses[i][j][0] = octopuses[i][j][0] + 1;
     }
-    if (j > 0) {
-        octopuses[i][j - 1][0] = octopuses[i][j - 1][0] + 1;
-    }
-    if (j < n - 1) {
-        octopuses[i][j + 1][0] = octopuses[i][j + 1][0] + 1;
-    }
-
-    if (i < n - 1) {
-        if (j > 0) {
-            octopuses[i + 1][j - 1][0] = octopuses[i + 1][j - 1][0] + 1;
-        }
-        octopuses[i + 1][j][0] = octopuses[i + 1][j][0] + 1;
-        if (j < n - 1) {
-            octopuses[i + 1][j + 1][0] = octopuses[i + 1][j + 1][0] + 1;
-        }
-    }
-
 }
 
+const flashNeighbors = (i, j, octopuses) => {
+    update(i - 1, j - 1, octopuses);
+    update(i - 1, j, octopuses);
+    update(i - 1, j + 1, octopuses);
+
+    update(i, j - 1, octopuses);
+    update(i, j + 1, octopuses);
+
+    update(i + 1, j - 1, octopuses);
+    update(i + 1, j, octopuses);
+    update(i + 1, j + 1, octopuses);
+}
 
 const main = async () => {
     const path = '.';
