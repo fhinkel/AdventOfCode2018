@@ -24,8 +24,8 @@ async function processLineByLine(file) {
 
     for (let i = 0; i < octopuses.length; i++) {
         for (let j = 0; j < octopuses[0].length; j++) {
-            // octopus = [ energy, flashed]
-            octopuses[i][j] = [octopuses[i][j], false];
+            const energy = octopuses[i][j];
+            octopuses[i][j] = {energy, flashed: false};
         }
     }
 
@@ -35,14 +35,14 @@ async function processLineByLine(file) {
     for (let s = 0; s < STEPS; s++) {
         for (let i = 0; i < n; i++) {
             for (let j = 0; j < n; j++) {
-                octopuses[i][j][0] = octopuses[i][j][0] + 1;
+                octopuses[i][j].energy++;
             }
         }
-        while (octopuses.flat().some(([energy, flashed]) => energy > 9 && !flashed)) {
+        while (octopuses.flat().some(o => o.energy > 9 && !o.flashed)) {
             for (let i = 0; i < n; i++) {
                 for (let j = 0; j < n; j++) {
-                    if (octopuses[i][j][0] > 9 && !octopuses[i][j][1]) {
-                        octopuses[i][j][1] = true;
+                    if (octopuses[i][j].energy > 9 && !octopuses[i][j].flashed) {
+                        octopuses[i][j].flashed = true;
                         flashes++;
                         flashNeighbors(i, j, octopuses);
                     }
@@ -50,36 +50,27 @@ async function processLineByLine(file) {
             }
         }
 
-        if (octopuses.flat().every(([energy, flashed]) => flashed)) {
+        if (octopuses.flat().every(o => o.flashed)) {
             console.log(`Synchronized after ${s + 1} steps`);
             break;
         }
 
         for (let i = 0; i < n; i++) {
             for (let j = 0; j < n; j++) {
-                if (octopuses[i][j][1]) {
-                    octopuses[i][j][0] = 0;
-                    octopuses[i][j][1] = false;
+                if (octopuses[i][j].flashed) {
+                    octopuses[i][j].energy = 0;
+                    octopuses[i][j].flashed = false;
 
                 }
             }
         }
-
-        // console.log(`After ${s+1} steps`);
-        // for (let i = 0; i < n; i++) {
-        // console.log(octopuses[i].map(([e,f]) => e).join(''));
-        // }
-        // console.log();
     }
-
-    // console.log(flashes)
-    // console.log(octopuses.flat());
 }
 
 const update = (i, j, octopuses) => {
     const n = octopuses.length;
     if (i >= 0 && i < n && j >= 0 && j < n) {
-        octopuses[i][j][0] = octopuses[i][j][0] + 1;
+        octopuses[i][j].energy++;
     }
 }
 
