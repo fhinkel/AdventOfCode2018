@@ -25,7 +25,7 @@ async function processLineByLine(file) {
     for (let i = 0; i < octopuses.length; i++) {
         for (let j = 0; j < octopuses[0].length; j++) {
             const energy = octopuses[i][j];
-            octopuses[i][j] = {energy, flashed: false};
+            octopuses[i][j] = { energy, flashed: false };
         }
     }
 
@@ -33,16 +33,15 @@ async function processLineByLine(file) {
     let flashes = 0;
 
     for (let s = 0; s < STEPS; s++) {
-        for (let i = 0; i < n; i++) {
-            for (let j = 0; j < n; j++) {
-                octopuses[i][j].energy++;
-            }
+        for (const o of octopuses.flat()) {
+            o.energy++;
         }
         while (octopuses.flat().some(o => o.energy > 9 && !o.flashed)) {
             for (let i = 0; i < n; i++) {
                 for (let j = 0; j < n; j++) {
-                    if (octopuses[i][j].energy > 9 && !octopuses[i][j].flashed) {
-                        octopuses[i][j].flashed = true;
+                    const o = octopuses[i][j];
+                    if (o.energy > 9 && !o.flashed) {
+                        o.flashed = true;
                         flashes++;
                         flashNeighbors(i, j, octopuses);
                     }
@@ -55,13 +54,10 @@ async function processLineByLine(file) {
             break;
         }
 
-        for (let i = 0; i < n; i++) {
-            for (let j = 0; j < n; j++) {
-                if (octopuses[i][j].flashed) {
-                    octopuses[i][j].energy = 0;
-                    octopuses[i][j].flashed = false;
-
-                }
+        for (const o of octopuses.flat()) {
+            if (o.flashed) {
+                o.energy = 0;
+                o.flashed = false;
             }
         }
     }
