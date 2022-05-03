@@ -43,6 +43,7 @@ async function processLineByLine(file) {
 }
 
 const main = async () => {
+  console.log('start')
   const path = '.';
   try {
     const files = glob.sync(`${path}/*.txt`, {
