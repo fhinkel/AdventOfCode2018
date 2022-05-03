@@ -17,30 +17,30 @@ async function processLineByLine(file) {
 
     let connections = [];
     for await (const line of rl) {
-        connections.push(line.split('-'));
+        const [a, b] = line.split('-');
+        connections.push([a, b], [b, a]);
     }
 
-    // console.log(connections);
-
-    console.log(runPath('start', connections));
+    console.log(runPath('start', connections, ''));
 }
 
-const runPath = (src, connections) => {
-    if (src === 'end') return 1;
+
+const runPath = (src, connections, path) => {
     let count = 0;
+    path = `${path} - ${src}`;
+    if (src === 'end') {
+        return 1;
+    }
     for (const [a, b] of connections) {
         if (a !== src) continue;
-        if (a.toLowerCase() === a) {
-            const fewerConnections = [];
-            for (const [src, dest] of connections) {
-                if (src === a || dest === a) continue;
-                fewerConnections.push([src, dest]);
-            }
-            count += runPath(b, fewerConnections);
+        const fewerConnections = [];
+        for (const [src, dest] of connections) {
+            if (a.toLowerCase() === a && (src === a || dest === a)) continue;
+            fewerConnections.push([src, dest]);
         }
-
+        count += runPath(b, fewerConnections, path);
     }
-    return count;
+    return count
 }
 
 const main = async () => {
