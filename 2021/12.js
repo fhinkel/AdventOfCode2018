@@ -4,7 +4,7 @@ const readline = require('readline');
 const glob = require('glob');
 const { statSync } = require('fs');
 
-const isLower = (a) => a === a.toLocaleLowerCase();
+const isLower = (a) => a === a.toLowerCase();
 
 async function processLineByLine(file) {
     const fileStream = fs.createReadStream(file);
@@ -33,6 +33,17 @@ async function processLineByLine(file) {
     // console.log(connections);
 
     console.log(runPath('start', connections, ''));
+
+    const pathes = solutions.map(path => {
+        let caves = path.split(' - ');
+        caves.shift();
+        caves = caves.map(path => getOriginal(path));
+        return caves.join(', ');
+    });
+    var uniquePathes = [...new Set(pathes)];
+
+    console.log(uniquePathes.length)
+
 }
 
 const isSame = (a, b) => {
@@ -55,26 +66,39 @@ const isOriginal = (a) => {
 
 const isCopy = a => !isOriginal(a);
 
+const containsCopiesOnly = path => {
+    const caves = path.split(' - ');
+    const copies = caves.filter(cave => isCopy(cave));
+    for (const copy of copies) {
+        if (!caves.includes(getOriginal(copy))) {
+            return true;
+        }
+    }
+}
+
+const solutions = [];
 
 const runPath = (start, connections, path) => {
     let count = 0;
     path = `${path} - ${start}`;
     if (start === 'end') {
-        console.log(path);
+
+        if (containsCopiesOnly(path)) {
+            return 0;
+        }
+        solutions.push(path);
         return 1;
     }
     for (const [a, b] of connections) {
         if (a !== start) continue;
-    
+
         const fewerConnections = [];
         for (const [src, dest] of connections) {
-            // console.log(a, getOriginal(a) ,isOriginal(a), isCopy(a));
             if (isCopy(a) && (isCopy(src) || isCopy(dest))) continue; // throw out all other copies if we used a copy
             if (isLower(a) && (src === a || dest === a)) continue; // throw out all connections to already visited lowercase
             fewerConnections.push([src, dest]);
         }
-        // console.log(fewerConnections);
-        count += runPath(getOriginal(b), fewerConnections, path);
+        count += runPath(b, fewerConnections, path);
     }
     return count
 }
