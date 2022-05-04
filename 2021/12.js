@@ -18,14 +18,27 @@ async function processLineByLine(file) {
     let connections = [];
     for await (const line of rl) {
         const [a, b] = line.split('-');
-        connections.push([a, b], [b, a]);
-        if (isLower(a) && a !== 'start') {
-            const aCopy = a + `2`;
-            connections.push([aCopy, b], [b, aCopy]);
+        if (a === 'start') {
+            connections.push([a, b]);
+        } else if (b === 'start') {
+            connections.push([b, a]);
+        } else {
+            connections.push([a, b], [b, a]);
         }
-        if (isLower(b) && b !== 'end') {
+        if (isLower(a) && (a !== 'start') && (a !== 'end')) {
+            const aCopy = a + `2`;
+            if (b !== 'start') {
+                connections.push([aCopy, b])
+            }
+            connections.push([b, aCopy]);
+        }
+        if (isLower(b) && (b !== 'start') && (b !== 'end')) {
             const bCopy = b + `2`;
-            connections.push([a, bCopy], [bCopy, a]);
+
+            if (a !== 'start') {
+                connections.push([bCopy, a]);
+            }
+            connections.push([a, bCopy]);
         }
 
     }
@@ -41,7 +54,7 @@ async function processLineByLine(file) {
         return caves.join(', ');
     });
     var uniquePathes = [...new Set(pathes)];
-
+    // console.log(uniquePathes.sort());
     console.log(uniquePathes.length)
 
 }
