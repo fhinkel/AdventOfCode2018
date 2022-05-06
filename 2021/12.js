@@ -3,6 +3,7 @@ const readline = require('readline');
 
 const glob = require('glob');
 const { statSync } = require('fs');
+const { count } = require('console');
 
 const isLower = (a) => a === a.toLowerCase();
 
@@ -29,30 +30,28 @@ async function processLineByLine(file) {
         if (a !== 'start') add(b, a, connections);
     }
 
-    let count = 0;
+    // set double: true for part 1
+    const startPath = { p: ['start'], double: false };
+    console.log(rec(startPath, connections));
+}
 
-    const startPath = { p: ['start'], double: '' };
-    const queue = [startPath];
-    while (queue.length !== 0) {
-        let path = queue.pop();
-        let last = path.p[path.p.length - 1];
-        if (last === 'end') {
-            // console.log(path.p.join(', '));
-            count++;
-            continue;
-        }
-        for (const dest of connections.get(last)) {
-            const [visit, double] = mayVisit(dest, path);
-            if (visit) {
-                const newPath = {};
-                newPath.p = [...path.p, dest];
-                newPath.double = double || path.double;
-                queue.push(newPath);
-            }
+const rec = (path, connections) => {
+    let last = path.p[path.p.length - 1];
+    if (last === 'end') {
+        // console.log(path.p.join(', '));
+        return 1;
+    }
+    let count = 0;
+    for (const dest of connections.get(last)) {
+        const [visit, double] = mayVisit(dest, path);
+        if (visit) {
+            const newPath = {};
+            newPath.p = [...path.p, dest];
+            newPath.double = double || path.double;
+            count += rec(newPath, connections);
         }
     }
-
-    console.log(count);
+    return count;
 }
 
 // returns [mayVisit, hasDouble]
