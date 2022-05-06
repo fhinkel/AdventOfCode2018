@@ -15,105 +15,44 @@ async function processLineByLine(file) {
     // Note: we use the crlfDelay option to recognize all instances of CR LF
     // ('\r\n') in input.txt as a single line break
 
-    let connections = [];
+    let add = (a, b, connections) => {
+        if (!connections.has(a)) {
+            connections.set(a, []);
+        }
+        connections.get(a).push(b)
+    }
+
+    let connections = new Map();
     for await (const line of rl) {
         const [a, b] = line.split('-');
-        if (a === 'start') {
-            connections.push([a, b]);
-        } else if (b === 'start') {
-            connections.push([b, a]);
-        } else {
-            connections.push([a, b], [b, a]);
-        }
-        if (isLower(a) && (a !== 'start') && (a !== 'end')) {
-            const aCopy = a + `2`;
-            if (b !== 'start') {
-                connections.push([aCopy, b])
-            }
-            connections.push([b, aCopy]);
-        }
-        if (isLower(b) && (b !== 'start') && (b !== 'end')) {
-            const bCopy = b + `2`;
-
-            if (a !== 'start') {
-                connections.push([bCopy, a]);
-            }
-            connections.push([a, bCopy]);
-        }
-
+        add(a, b, connections);
+        add(b, a, connections);
     }
 
-    // console.log(connections);
-
-    console.log(runPath('start', connections, ''));
-
-    const pathes = solutions.map(path => {
-        let caves = path.split(' - ');
-        caves.shift();
-        caves = caves.map(path => getOriginal(path));
-        return caves.join(', ');
-    });
-    var uniquePathes = [...new Set(pathes)];
-    // console.log(uniquePathes.sort());
-    console.log(uniquePathes.length)
-
-}
-
-const isSame = (a, b) => {
-    if (a === b) return true;
-    if ((a + '2') === b) return true;
-    if (a === (b + '2')) return true;
-    return false;
-};
-
-const getOriginal = (a) => {
-    if (a.at(-1) === '2') {
-        a = a.slice(0, -1);
-    }
-    return a;
-}
-
-const isOriginal = (a) => {
-    return a === getOriginal(a);
-}
-
-const isCopy = a => !isOriginal(a);
-
-const containsCopiesOnly = path => {
-    const caves = path.split(' - ');
-    const copies = caves.filter(cave => isCopy(cave));
-    for (const copy of copies) {
-        if (!caves.includes(getOriginal(copy))) {
-            return true;
-        }
-    }
-}
-
-const solutions = [];
-
-const runPath = (start, connections, path) => {
     let count = 0;
-    path = `${path} - ${start}`;
-    if (start === 'end') {
-
-        if (containsCopiesOnly(path)) {
-            return 0;
+    const queue = [['start']];
+    while (queue.length !== 0) {
+        let path = queue.pop();
+        let last = path[path.length - 1];
+        if (last === 'end') {
+            count++;
+            continue;
         }
-        solutions.push(path);
-        return 1;
-    }
-    for (const [a, b] of connections) {
-        if (a !== start) continue;
-
-        const fewerConnections = [];
-        for (const [src, dest] of connections) {
-            if (isCopy(a) && (isCopy(src) || isCopy(dest))) continue; // throw out all other copies if we used a copy
-            if (isLower(a) && (src === a || dest === a)) continue; // throw out all connections to already visited lowercase
-            fewerConnections.push([src, dest]);
+        for (const dest of connections.get(last)) {
+            if (mayVisit(dest, path)) {
+                queue.push([...path, dest]);
+            }
         }
-        count += runPath(b, fewerConnections, path);
     }
-    return count
+
+    console.log(count);
+}
+
+const mayVisit = (dest, path) => {
+    if (!isLower(dest)) {
+        return true;
+    }
+    return !path.includes(dest);
 }
 
 const main = async () => {
