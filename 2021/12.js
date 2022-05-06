@@ -25,22 +25,29 @@ async function processLineByLine(file) {
     let connections = new Map();
     for await (const line of rl) {
         const [a, b] = line.split('-');
-        add(a, b, connections);
-        add(b, a, connections);
+        if (b !== 'start') add(a, b, connections);
+        if (a !== 'start') add(b, a, connections);
     }
 
     let count = 0;
-    const queue = [['start']];
+
+    const startPath = { p: ['start'], double: '' };
+    const queue = [startPath];
     while (queue.length !== 0) {
         let path = queue.pop();
-        let last = path[path.length - 1];
+        let last = path.p[path.p.length - 1];
         if (last === 'end') {
+            // console.log(path.p.join(', '));
             count++;
             continue;
         }
         for (const dest of connections.get(last)) {
-            if (mayVisit(dest, path)) {
-                queue.push([...path, dest]);
+            const [visit, double] = mayVisit(dest, path);
+            if (visit) {
+                const newPath = {};
+                newPath.p = [...path.p, dest];
+                newPath.double = double;
+                queue.push(newPath);
             }
         }
     }
@@ -48,11 +55,18 @@ async function processLineByLine(file) {
     console.log(count);
 }
 
+// returns [mayVisit, hasDouble]
 const mayVisit = (dest, path) => {
     if (!isLower(dest)) {
-        return true;
+        return [true, path.double];
     }
-    return !path.includes(dest);
+    if (!path.p.includes(dest)) {
+        return [true, path.double]
+    }
+    if (!path.double) {
+        return [true, dest];
+    };
+    return [false, path.double];
 }
 
 const main = async () => {
