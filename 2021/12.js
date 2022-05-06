@@ -58,15 +58,15 @@ async function processLineByLine(file) {
 // returns [mayVisit, hasDouble]
 const mayVisit = (dest, path) => {
     if (!isLower(dest)) {
-        return [true, path.double];
+        return [true];
     }
     if (!path.p.includes(dest)) {
-        return [true, path.double]
+        return [true]
     }
     if (!path.double) {
         return [true, dest];
     };
-    return [false, path.double];
+    return [false];
 }
 
 const main = async () => {
