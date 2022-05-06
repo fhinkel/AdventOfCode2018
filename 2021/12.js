@@ -46,7 +46,7 @@ async function processLineByLine(file) {
             if (visit) {
                 const newPath = {};
                 newPath.p = [...path.p, dest];
-                newPath.double = double;
+                newPath.double = double || path.double;
                 queue.push(newPath);
             }
         }
