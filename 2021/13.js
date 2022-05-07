@@ -21,17 +21,46 @@ async function processLineByLine(file) {
     for await (const line of rl) {
         if (line.includes(',')) {
             let [x, y] = line.split(',').map(n => Number(n));
-            dots.push([x,y]);
+            dots.push([x, y]);
         }
-        if(line.includes('fold')) {
-            console.log(line);
+        if (line.includes('fold')) {
             let [direction, n] = line.split('=');
             direction = direction[direction.length - 1];
-            folds.push([direction, n]);
+            folds.push([direction, Number(n)]);
         }
     }
-    // console.log(dots);
-    console.log(folds[0]);
+
+    const n = folds[0][1];
+    let newDots = [];
+    if (folds[0][0] === 'y') {
+        for (const [x, y] of dots) {
+            if (y < n) {
+                newDots.push([x, y]);
+            } else {
+                const dist = y - n;
+                newDots.push([x, y - dist * 2]);
+            }
+        }
+    }
+
+    if (folds[0][0] === 'x') {
+        for (const [x, y] of dots) {
+            if (x < n) {
+                newDots.push([x, y]);
+            } else {
+                const dist = x - n;
+                newDots.push([x - dist * 2, y]);
+            }
+        }
+    }
+
+    newDots = newDots.map(a => a.join(','));
+    let s = new Set(newDots);
+    console.log(s.size);
+
+
+
+
 }
 
 
