@@ -60,7 +60,7 @@ async function processLineByLine(file) {
     for (let i = 0; i <= yMax; i++) {
         plot[i] = [];
         for (let j = 0; j <= xMax; j++) {
-            plot[i][j] = '.';
+            plot[i][j] = ' ';
         }
     }
 
@@ -69,14 +69,9 @@ async function processLineByLine(file) {
     }
 
     plot = plot.map(row => row.join(''));
-    // console.log(plot);
     for (const line of plot) {
         console.log(line);
     }
-
-
-    // console.log(s.size);
-
 }
 
 const foldUp = (dots, n) => {
