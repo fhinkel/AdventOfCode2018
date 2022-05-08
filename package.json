@@ -9,10 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@google-cloud/vision": "^0.24.0",
-    "text2png": "^2.1.0"
+    "@azure/static-web-apps-cli": "^0.8.3",
+    "teeny-request": "^7.2.0"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fhinkel/AdventOfCode2018.git"
