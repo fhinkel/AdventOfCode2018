@@ -1,6 +1,8 @@
 name: npm i
 
 on:
+  push:
+    branches: main
   pull_request:
     branches: [ main ]
   schedule: 
@@ -9,7 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [14.x, 16.x]
