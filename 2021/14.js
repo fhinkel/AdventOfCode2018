@@ -32,15 +32,16 @@ async function processLineByLine(file) {
         }
     }
 
-    let pairs = new Map();
-    for (let i = 0; i < template.length - 1; i++) {
-        const pair = template[i] + template[i + 1];
-        pairs.set(pair, (pairs.get(pair) || 0) + 1);
-    }
-
     const increase = (m, p, n) => {
         m.set(p, (m.get(p) || 0) + n);
     }
+
+    let pairs = new Map();
+    for (let i = 0; i < template.length - 1; i++) {
+        const pair = template[i] + template[i + 1];
+        increase(pairs, pair, 1);
+    }
+
 
     for (let i = 0; i < 40; i++) {
         let newPairs = new Map();
@@ -56,7 +57,7 @@ async function processLineByLine(file) {
         pairs = newPairs;
     }
 
-    // console.log(template);
+    // Count the letters
     let m = new Map();
     for (const [pair, n] of pairs.entries()) {
         increase(m, pair[0], n);
@@ -64,8 +65,10 @@ async function processLineByLine(file) {
     }
     let counts = [...m.entries()];
     counts = counts.sort(([c1, n1], [c2, n2]) => n1 - n2);
-    // console.log(counts);
     const diff = counts[counts.length - 1][1] - counts[0][1]
+    // Almost every letter is counted twice in beginning and end of pair
+    // only first and last letter of the string are not counted twice. 
+    // If they are the min or max frequent letter, we need to round differently.
     console.log(diff/2);
 }
 
