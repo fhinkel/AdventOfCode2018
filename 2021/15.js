@@ -6,42 +6,6 @@ const { statSync } = require('fs');
 
 let min = 0;
 
-const dfs = (cache, x, y, risk, map) => {
-    const nRows = map.length;
-    const nColumns = map[0].length;
-
-    if (x < 0 || x >= nRows || y < 0 || y >= nColumns) {
-        return min;
-    }
-
-    risk += map[x][y];
-    if (risk >= min) {
-        return min;
-    }
-
-    if (cache[x][y] < risk) {
-        // console.log(cache[x][y]);
-        return min;
-    }
-    cache[x][y] = risk;
-
-    if ((x === nRows - 1) && (y === nColumns - 1)) {
-        console.log('done', risk)
-        min = Math.min(min, risk);
-        return risk;
-    }
-
-    let res = [
-        dfs(cache, x, y + 1, risk, map),
-        dfs(cache, x, y - 1, risk, map),
-        dfs(cache, x + 1, y, risk, map),
-        dfs(cache, x - 1, y, risk, map),
-    ];
-    // console.log(x, y)
-
-    return Math.min(...res);
-}
-
 async function processLineByLine(file) {
     const fileStream = fs.createReadStream(file);
     const rl = readline.createInterface({
@@ -88,15 +52,6 @@ async function processLineByLine(file) {
 
     nRows = nRows * 5;
 
-    // create a valid path, all the way down and over 
-    min = 0;
-    for (const row of map) {
-        min += row[0];
-    }
-    for (let i = 1; i < nColumns; i++) {
-        min += map[nRows - 1][i];
-    }
-
     let q = [];
     let newQ = [[0, 0, 0]];
     while (newQ.length > 0) {
@@ -111,9 +66,6 @@ async function processLineByLine(file) {
 
             let currentRisk = risk + map[x][y];
 
-            if (currentRisk > min) {
-                continue;
-            }
             if (cache[x][y] && (cache[x][y] <= currentRisk)) {
                 // console.log(cache[x][y], currentRisk)
                 continue;
@@ -122,7 +74,6 @@ async function processLineByLine(file) {
 
             if ((x === nRows - 1) && (y === nColumns - 1)) {
                 // console.log('done', currentRisk)
-                min = Math.min(min, currentRisk);
                 continue;
             }
 
