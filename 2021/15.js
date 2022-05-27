@@ -55,7 +55,7 @@ async function processLineByLine(file) {
     while (q.length > 0) {
         while (q.length > 0) {
             // A* algorithm: gScore + Manhattan distance as heuristic
-            q = q.sort((a,b)=> (b[2]-b[0]-b[1])-(a[2]-a[0]-a[1]));
+            q = q.sort((a, b) => b[2] - a[2]);
             const [x, y, risk] = q.pop();
             if (x < 0 || x >= nRows || y < 0 || y >= nColumns) {
                 continue;
