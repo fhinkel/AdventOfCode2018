@@ -4,8 +4,6 @@ const readline = require('readline');
 const glob = require('glob');
 const { statSync } = require('fs');
 
-let min = 0;
-
 async function processLineByLine(file) {
     const fileStream = fs.createReadStream(file);
     const rl = readline.createInterface({
@@ -29,6 +27,7 @@ async function processLineByLine(file) {
     let nRows = map.length;
     let nColumns = map[0].length;
 
+    // extend map times 5 in both directions
     for (let k = 1; k < 5; k++) {
         for (let i = 0; i < nRows; i++) {
             for (let j = 0; j < nColumns; j++) {
@@ -52,13 +51,11 @@ async function processLineByLine(file) {
 
     nRows = nRows * 5;
 
-    let q = [];
-    let newQ = [[0, 0, 0]];
-    while (newQ.length > 0) {
-        q = newQ;
-        newQ = [];
-        // console.log(q.length);
+    let q = [[0, 0, 0]];
+    while (q.length > 0) {
         while (q.length > 0) {
+            // A* algorithm: gScore + Manhattan distance as heuristic
+            q = q.sort((a,b)=> (b[2]-b[0]-b[1])-(a[2]-a[0]-a[1]));
             const [x, y, risk] = q.pop();
             if (x < 0 || x >= nRows || y < 0 || y >= nColumns) {
                 continue;
@@ -67,17 +64,15 @@ async function processLineByLine(file) {
             let currentRisk = risk + map[x][y];
 
             if (cache[x][y] && (cache[x][y] <= currentRisk)) {
-                // console.log(cache[x][y], currentRisk)
                 continue;
             }
             cache[x][y] = currentRisk;
 
             if ((x === nRows - 1) && (y === nColumns - 1)) {
-                // console.log('done', currentRisk)
                 continue;
             }
 
-            newQ.push(
+            q.push(
                 [x, y + 1, currentRisk],
                 [x, y - 1, currentRisk],
                 [x + 1, y, currentRisk],
