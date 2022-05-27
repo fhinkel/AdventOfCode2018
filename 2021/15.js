@@ -56,9 +56,40 @@ async function processLineByLine(file) {
     for await (const line of rl) {
         map.push(line.split('').map(x => Number(x)));
         cache.push([]);
+        cache.push([]);
+        cache.push([]);
+        cache.push([]);
+        cache.push([]);
     }
-    const nRows = map.length;
-    const nColumns = map[0].length;
+
+    let nRows = map.length;
+    let nColumns = map[0].length;
+
+    for (let k = 1; k < 5; k++) {
+        for (let i = 0; i < nRows; i++) {
+            for (let j = 0; j < nColumns; j++) {
+                let s = map[i][j] + k;
+                map[i][j + k * nColumns] = s > 9 ? s%9 : s;
+            }
+        }
+    }
+
+    nColumns = nColumns * 5;
+
+    for (let k = 1; k < 5; k++) {
+        for (let i = 0; i < nRows; i++) {
+            map.push([]);
+            for (let j = 0; j < nColumns; j++) {
+                let s = map[i][j] + k;
+                map[i + k * nRows][j] = s > 9 ? s%9 : s;
+            }
+        }
+    }
+
+    nRows = nRows * 5;
+
+    console.log(map[49].join(''))
+    console.log(nRows);
 
     // create a valid path, all the way down and over 
     min = 0;
