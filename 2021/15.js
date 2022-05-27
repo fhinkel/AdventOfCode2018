@@ -69,7 +69,7 @@ async function processLineByLine(file) {
         for (let i = 0; i < nRows; i++) {
             for (let j = 0; j < nColumns; j++) {
                 let s = map[i][j] + k;
-                map[i][j + k * nColumns] = s > 9 ? s%9 : s;
+                map[i][j + k * nColumns] = s > 9 ? s % 9 : s;
             }
         }
     }
@@ -81,15 +81,12 @@ async function processLineByLine(file) {
             map.push([]);
             for (let j = 0; j < nColumns; j++) {
                 let s = map[i][j] + k;
-                map[i + k * nRows][j] = s > 9 ? s%9 : s;
+                map[i + k * nRows][j] = s > 9 ? s % 9 : s;
             }
         }
     }
 
     nRows = nRows * 5;
-
-    console.log(map[49].join(''))
-    console.log(nRows);
 
     // create a valid path, all the way down and over 
     min = 0;
@@ -99,8 +96,6 @@ async function processLineByLine(file) {
     for (let i = 1; i < nColumns; i++) {
         min += map[nRows - 1][i];
     }
-    console.log(min);
-
 
     let q = [];
     let newQ = [[0, 0, 0]];
