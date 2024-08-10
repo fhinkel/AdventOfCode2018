@@ -3,6 +3,7 @@ const readline = require('readline');
 
 const glob = require('glob');
 const { statSync } = require('fs');
+const { parse } = require('path');
 
 async function processLineByLine(file) {
     const fileStream = fs.createReadStream(file);
@@ -15,36 +16,34 @@ async function processLineByLine(file) {
 
     let sum = 0;
 
-    // 12 red cubes, 13 green cubes, and 14 blue cubes
-    const cubes = {
-        red: 12,
-        green: 13,
-        blue: 14,
-    };
 
     for await (const line of rl) {
-        // Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-        // console.log(line);
-        var [game, numbers] = line.split(':');
+        const cubes = new Map([
+            ['red', 0],
+            ['green', 0],
+            ['blue', 0],
+        ]);
+        var [, numbers] = line.split(':');
 
         const rounds = numbers.split(';');
 
-        (() => {
-            for (const round of rounds) {
-                const entries = round.split(',').map(x => x.trim());
-                for (const entry of entries) {
-                    const [num, color] = entry.split(' ');
-                    if (cubes[color] < parseInt(num)) {
-                        // console.log('Game', game, 'is invalid');
-                        return;
-                    }
+        let power = 1;
+        for (const round of rounds) {
+            const entries = round.split(',').map(x => x.trim());
+            for (const entry of entries) {
+                const [num, color] = entry.split(' ');
+                if (cubes.get(color) < parseInt(num)) {
+                    cubes.set(color, parseInt(num));
                 }
             }
-            // console.log('Game', game, 'is valid');
-            game = game.trim();
-            game = parseInt(game.split(' ')[1]);
-            sum += parseInt(game);
-        })();
+        }
+        cubes.forEach((num, color) => {
+            power *= parseInt(num);
+        });
+        cubes.set('red', 0);
+        cubes.set('green', 0);
+        cubes.set('blue', 0);
+        sum += power;
 
     }
     console.log(sum);
