@@ -35,9 +35,9 @@ async function processLineByLine(file) {
             } else if (line[i] === '.') {
                 // do nothing
             }
-            else {
-                // Symbol
-                starsMap.set(starsMapKey(lineNum, i), '*');
+            else if (line[i] === '*') {
+                // Gear Symbol *
+                starsMap.set(starsMapKey(lineNum, i), []);
             }
 
         }
@@ -46,7 +46,7 @@ async function processLineByLine(file) {
 
     let sum = 0;
 
-    let adjacentToSymbol = (line, index, starsMap) => {
+    let adjacentToSymbol = (value, line, index, starsMap) => {
         let adjacent = [
             [line - 1, index - 1],
             [line - 1, index],
@@ -59,6 +59,9 @@ async function processLineByLine(file) {
         ];
         for (let [line, index] of adjacent) {
             if (starsMap.has(starsMapKey(line, index))) {
+                let parts = starsMap.get(starsMapKey(line, index));
+                parts.push(value);
+                starsMap.set(starsMapKey(line, index), parts);
                 return true;
             }
         }
@@ -68,10 +71,16 @@ async function processLineByLine(file) {
     for (let [key, value] of numsMap) {
         let [line, index] = key;
         for (let i = 0; i < String(value).length; i++) {
-            if (adjacentToSymbol(line, index + i, starsMap)) {
-                sum += value;
+            if (adjacentToSymbol(value, line, index + i, starsMap)) {
+                // sum += value;
                 break;
             }
+        }
+    }
+
+    for(let [key, parts] of starsMap) {
+        if(parts.length == 2) {
+            sum+= parts[0] * parts[1];
         }
     }
 
