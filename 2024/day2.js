@@ -12,10 +12,7 @@ let readInput = async () => {
 }
 
 let findSafeReports = async (inputs) => {
-    // input array of 2 number pairs
-
-    const isIncreasing = (org) => {
-        let arr = [...org]
+    const isIncreasing = (arr) => {
         for (let i = 1; i < arr.length; i++) {
             if (arr[i] <= arr[i - 1]) { // 
                 return false;
@@ -24,8 +21,8 @@ let findSafeReports = async (inputs) => {
             if (dist > 3) {
                 return false;
             }
-            return true;
         }
+        return true;
     }
 
     const isDecreasing = (arr) => {
@@ -45,13 +42,28 @@ let findSafeReports = async (inputs) => {
     for (const report of inputs) {
         if (isDecreasing(report) || isIncreasing(report)) {
             count++;
+        } else {
+            let combs = combinations(report)
+            for (const comb of combs) {
+                if (isDecreasing(comb) || isIncreasing(comb)) {
+                    count++;
+                    break;
+                }
+            }
         }
     }
 
     return count
 }
 
-// 1 2 3 4 6 5 9 10 
+const combinations = (arr) => {
+    let combs = []
+    for (let i = 0; i < arr.length; i++) {
+        let comb = [...arr.slice(0, i), ...arr.slice(i + 1)]
+        combs.push(comb)
+    }
+    return combs
+}
 
 let main = async () => {
     let inputs = await readInput();
