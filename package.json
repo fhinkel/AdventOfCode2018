@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@azure/static-web-apps-cli": "^0.8.3",
+    "@azure/static-web-apps-cli": "^1.0.0",
     "teeny-request": "^7.2.0"
   },
   "repository": {
