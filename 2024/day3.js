@@ -4,7 +4,6 @@ let readInput = async () => {
     let res = await fs.readFile('./input.txt');
     res = res.toString().split('\n')
         .map(line => line.split(/\s+/).map(Number));
-    // console.log(res);
     return res;
 
 }
@@ -12,7 +11,7 @@ let readInput = async () => {
 let findSafeReports = async (inputs) => {
     const isIncreasing = (arr) => {
         for (let i = 1; i < arr.length; i++) {
-            if (arr[i] <= arr[i - 1]) { // 
+            if (arr[i] <= arr[i - 1]) { 
                 return false;
             }
             const dist = arr[i] - arr[i - 1];
@@ -64,12 +63,10 @@ const combinations = (arr) => {
 }
 
 let main = async () => {
-    // print current directory
-    console.log(process.cwd());
     let inputs = await readInput();
     let sum = await findSafeReports(inputs);
     console.log(sum);
-    console.log("done");
+    console.log("3");
 }
 
 main();
