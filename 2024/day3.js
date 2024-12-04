@@ -2,71 +2,29 @@ const fs = require('fs').promises;
 
 let readInput = async () => {
     let res = await fs.readFile('./input.txt');
-    res = res.toString().split('\n')
-        .map(line => line.split(/\s+/).map(Number));
+    // let res = await fs.readFile('./test-input.txt');
+    res = res.toString(); //.split('\n')
     return res;
-
 }
 
-let findSafeReports = async (inputs) => {
-    const isIncreasing = (arr) => {
-        for (let i = 1; i < arr.length; i++) {
-            if (arr[i] <= arr[i - 1]) { 
-                return false;
-            }
-            const dist = arr[i] - arr[i - 1];
-            if (dist > 3) {
-                return false;
-            }
-        }
-        return true;
-    }
+const addProducts = (s) => {
+    const regex = /mul\(\d{1,3},\d{1,3}\)/g;
+    // xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))
+    let indexes = s.matchAll(regex);
 
-    const isDecreasing = (arr) => {
-        for (let i = 1; i < arr.length; i++) {
-            if (arr[i] >= arr[i - 1]) {
-                return false;
-            }
-            const dist = arr[i - 1] - arr[i];
-            if (dist > 3) {
-                return false;
-            }
-        }
-        return true;
+    let sum = 0
+    for(const index of indexes) {
+        const arg = index[0];
+        const [a,b] = arg.match(/\d+/g)
+        sum += Number(a) * Number(b)
     }
-
-    let count = 0;
-    for (const report of inputs) {
-        if (isDecreasing(report) || isIncreasing(report)) {
-            count++;
-        } else {
-            let combs = combinations(report)
-            for (const comb of combs) {
-                if (isDecreasing(comb) || isIncreasing(comb)) {
-                    count++;
-                    break;
-                }
-            }
-        }
-    }
-
-    return count
-}
-
-const combinations = (arr) => {
-    let combs = []
-    for (let i = 0; i < arr.length; i++) {
-        let comb = [...arr.slice(0, i), ...arr.slice(i + 1)]
-        combs.push(comb)
-    }
-    return combs
+    return sum
 }
 
 let main = async () => {
     let inputs = await readInput();
-    let sum = await findSafeReports(inputs);
+    let sum = addProducts(inputs);
     console.log(sum);
-    console.log("3");
 }
 
 main();
