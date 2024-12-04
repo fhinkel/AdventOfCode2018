@@ -3,7 +3,7 @@ const { on } = require('cluster');
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    let res = await fs.readFile('./../input.txt');
+    let res = await fs.readFile('./input.txt');
     res = res.toString().split('\n')
         .map(line => line.split(/\s+/).map(Number));
     // console.log(res);
@@ -66,6 +66,8 @@ const combinations = (arr) => {
 }
 
 let main = async () => {
+    // print current directory
+    console.log(process.cwd());
     let inputs = await readInput();
     let sum = await findSafeReports(inputs);
     console.log(sum);

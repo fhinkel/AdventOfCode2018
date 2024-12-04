@@ -1,10 +1,9 @@
 const fs = require('fs').promises;
 
 let readInput = async () => {
-    let res = await fs.readFile('./../input.txt');
+    let res = await fs.readFile('./input.txt');
     res = res.toString().split('\n')
         .map(line => line.split(/\s+/).map(Number));
-    console.log(res);
     return res;
 
 }
@@ -26,7 +25,6 @@ let findDist = async (inputs) => {
         sum += Math.abs(first[i] - second[i])
     }
 
-    console.log(first)
     return sum
 }
 
@@ -46,7 +44,6 @@ const findSim = (inputs) => {
             m.set(num, m.get(num) + 1)
         }
     }
-    console.log(m)
 
     let sum = 0
     for(const num of first) {
