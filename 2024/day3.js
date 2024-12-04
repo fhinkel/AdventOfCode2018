@@ -1,3 +1,5 @@
+const { watchFile } = require('fs');
+
 const fs = require('fs').promises;
 
 let readInput = async () => {
@@ -8,16 +10,24 @@ let readInput = async () => {
 }
 
 const addProducts = (s) => {
-    const regex = /mul\(\d{1,3},\d{1,3}\)/g;
-    // xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))
-    let indexes = s.matchAll(regex);
-
+    s = 'do()' + s; // always start active
+    let segments = s.split("don't()");
     let sum = 0
-    for(const index of indexes) {
-        const arg = index[0];
-        const [a,b] = arg.match(/\d+/g)
-        sum += Number(a) * Number(b)
+
+    for(const segment of segments) {
+        let parts = segment.split("do()")
+        parts.shift() // get rid of first deactivated instruction
+        for(const part of parts) {
+            let matches = part.matchAll(/mul\(\d{1,3},\d{1,3}\)/g);
+            for (const m of matches) {
+                const index = m.index
+                // console.log(m, index);
+                const [a, b] = m[0].match(/\d+/g)
+                sum += Number(a) * Number(b)
+            }
+        }
     }
+
     return sum
 }
 
