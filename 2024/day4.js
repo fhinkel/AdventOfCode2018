@@ -1,10 +1,8 @@
-const { watchFile } = require('fs');
+const fs = require('fs');
 
-const fs = require('fs').promises;
-
-let readInput = async () => {
-    let res = await fs.readFile('./input.txt');
-    // let res = await fs.readFile('./test-input.txt');
+let readInput = () => {
+    let res = fs.readFileSync('./input.txt');
+    // let res =  fs.readFileSync('./test-input.txt');
     res = res.toString().split('\n').map(line => line.trim())
     return res;
 }
@@ -55,14 +53,11 @@ const countWords = (lines) => {
             }
         }
     }
-
-
     return count
-
 }
 
-let main = async () => {
-    let inputs = await readInput();
+let main = () => {
+    let inputs = readInput();
     let sum = countWords(inputs);
     console.log(sum);
 }
