@@ -1,5 +1,3 @@
-const { watchFile } = require('fs');
-
 const fs = require('fs').promises;
 
 let readInput = async () => {

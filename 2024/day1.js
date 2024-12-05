@@ -1,14 +1,14 @@
-const fs = require('fs').promises;
+const fs = require('fs');
 
-let readInput = async () => {
-    let res = await fs.readFile('./input.txt');
+let readInput = () => {
+    let res = fs.readFileSync('./input.txt');
     res = res.toString().split('\n')
         .map(line => line.split(/\s+/).map(Number));
+    // console.log(res)
     return res;
-
 }
 
-let findDist = async (inputs) => {
+let findDist = (inputs) => {
     // input array of 2 number pairs
     let first = [];
     let second = [];
@@ -46,18 +46,18 @@ const findSim = (inputs) => {
     }
 
     let sum = 0
-    for(const num of first) {
-        if(m.has(num)) {
+    for (const num of first) {
+        if (m.has(num)) {
             sum += num * m.get(num)
         }
     }
     return sum
 }
 
-let main = async () => {
-    let inputs = await readInput();
-    let sum = await findDist(inputs);
-    let simDist = await findSim(inputs);
+let main = () => {
+    let inputs = readInput();
+    let sum = findDist(inputs);
+    let simDist = findSim(inputs);
     console.log("sim Score: " + simDist);
     console.log(sum);
 }
