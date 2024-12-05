@@ -1,5 +1,3 @@
-const { error } = require('console');
-const { UV_UDP_REUSEADDR } = require('constants');
 const fs = require('fs');
 
 let readInput = () => {
@@ -7,8 +5,8 @@ let readInput = () => {
     // let res = fs.readFileSync('./test-input.txt');
     res = res.toString().split('\n').map(line => line.trim())
     const index = res.indexOf("")
-    const orders = res.slice(0, index).map(s=>s.split("|").map(Number))
-    const updates = res.slice(index + 1).map(s=>s.split(",").map(Number))
+    const orders = res.slice(0, index).map(s => s.split("|").map(Number))
+    const updates = res.slice(index + 1).map(s => s.split(",").map(Number))
     return [orders, updates];
 }
 
@@ -30,8 +28,6 @@ const sumPages = (orders, updates) => {
         }
     }
 
-    // console.log(m)
-
     const isValidUpdate = (update) => {
         const n = update.length;
         for (let i = 1; i < n; i++) {
@@ -41,30 +37,57 @@ const sumPages = (orders, updates) => {
                 if (m.has(first)) {
                     let befores = m.get(first)
                     if (befores.indexOf(second) !== -1) {
-                        // 75,97,47,61,53
-                        // 97|75
                         return false
                     }
                 }
             }
         }
-        // console.log(update);
         return true
     }
 
     const validUpdates = []
+    const invalidUpdate = []
     for (const update of updates) {
         if (isValidUpdate(update)) {
             validUpdates.push(update)
+        } else {
+            invalidUpdate.push(update)
         }
     }
 
+    const sortUpdate = (update) => {
+        // 47|53
+        // 97|13
+        // 97|61
+
+        // 75,97,47,61,53
+        const n = update.length;
+        for (let i = 1; i < n; i++) {
+            let second = update[i]
+            for (let j = 0; j < i; j++) {
+                let first = update[j]
+                if (m.has(first)) {
+                    let befores = m.get(first)
+                    if (befores.indexOf(second) === -1) {
+                        continue;
+                    }
+                    // we found a iolation
+                    // console.log("flip: ",first, second);
+                    update[i] = first
+                    update[j] = second
+                    break;
+                }
+            }
+        }
+        return update
+    }
+
     let sum = 0
-    for (const update of validUpdates) {
+    for (const update of invalidUpdate) {
         const l = update.length
-        if (l % 2 === 0) {
-            console.log(l, update);
-            throw new Error("even length can't cope")
+
+        while (!isValidUpdate(update)) {
+            sortUpdate(update)
         }
         sum += update[Math.floor(l / 2)]
     }
