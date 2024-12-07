@@ -28,68 +28,43 @@ const sumPages = (orders, updates) => {
         }
     }
 
-    const isValidUpdate = (update) => {
-        const n = update.length;
-        for (let i = 1; i < n; i++) {
-            const second = update[i]
-            for (let j = 0; j < i; j++) {
-                const first = update[j]
-                if (m.has(first)) {
-                    let befores = m.get(first)
-                    if (befores.indexOf(second) !== -1) {
-                        return false
-                    }
-                }
+    const compareFn = (a, b) => {
+        // > 0 	sort a after b, e.g. [b, a]   
+        if (m.has(a)) {
+            if ((m.get(a)).indexOf(b) !== -1) {
+                // a > b
+                return 1;
             }
         }
-        return true
+        // a < b
+        return -1
     }
 
-    const validUpdates = []
-    const invalidUpdate = []
-    for (const update of updates) {
-        if (isValidUpdate(update)) {
-            validUpdates.push(update)
-        } else {
-            invalidUpdate.push(update)
-        }
-    }
+    Array.prototype.equals = function (array) {
+        // if the other array is a falsy value, return
+        if (!array)
+            return false;
 
-    const sortUpdate = (update) => {
-        // 47|53
-        // 97|13
-        // 97|61
-
-        // 75,97,47,61,53
-        const n = update.length;
-        for (let i = 1; i < n; i++) {
-            let second = update[i]
-            for (let j = 0; j < i; j++) {
-                let first = update[j]
-                if (m.has(first)) {
-                    let befores = m.get(first)
-                    if (befores.indexOf(second) === -1) {
-                        continue;
-                    }
-                    // we found a iolation
-                    // console.log("flip: ",first, second);
-                    update[i] = first
-                    update[j] = second
-                    break;
-                }
-            }
+        // compare lengths - can save a lot of time 
+        if (this.length != array.length)
+            return false;
+        for (let i = 0, l = this.length; i < l; i++) {
+            // Check
+            if (this[i] != array[i])
+                return false;
         }
-        return update
+        return true;
+
     }
 
     let sum = 0
-    for (const update of invalidUpdate) {
-        const l = update.length
-
-        while (!isValidUpdate(update)) {
-            sortUpdate(update)
+    for (const update of updates) {
+        let unsorted = [...update]
+        update.sort(compareFn)
+        if (!unsorted.equals(update)) {
+            const l = update.length
+            sum += update[Math.floor(l / 2)]
         }
-        sum += update[Math.floor(l / 2)]
     }
 
     return sum
