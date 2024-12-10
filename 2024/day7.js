@@ -22,11 +22,13 @@ const sumEquation = (line) => {
         ops.shift()
         let sum = evalRec(n + b, ops)
         let prod = evalRec(n * b, ops)
+        let con = String(n) + String(b)
+        let concat = evalRec(Number(con), ops)
 
-        return [...sum, ...prod]
+        return [...sum, ...prod, ...concat]
     }
 
-    if(operands.length === 1) {
+    if (operands.length === 1) {
         throw new Error("not enough operands")
         // return res === operands[0]
     }
@@ -34,8 +36,8 @@ const sumEquation = (line) => {
     let first = operands[0]
     operands.shift()
     let possibleResults = evalRec(first, operands)
-    
-    if(possibleResults.includes(res)) {
+
+    if (possibleResults.includes(res)) {
         return res
     }
     return 0
