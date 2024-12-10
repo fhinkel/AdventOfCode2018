@@ -24,34 +24,27 @@ const positions = (arr) => {
         throw new Error('no guard found anywhere')
     }
 
-    const countSteps = () => {
-        let count = 0
-        for (let i = 0; i < height; i++) {
-            for (let j = 0; j < width; j++) {
-                if (arr[i][j] === 'X') {
-                    count++
-                }
-            }
-        }
-        return count
-    }
-
     let [x, y] = findGuard()
     const direction = arr[x][y]
     arr[x][y] = 'X'
     let dir;
+    let marker;
     switch (direction) {
         case '^':
             dir = [-1, 0]
+            marker = '^'
             break;
         case 'v':
             dir = [1, 0]
+            marker = 'v'
             break;
         case '<':
             dir = [0, -1]
+            marker = '<'
             break;
         case '>':
             dir = [0, 1]
+            marker = '>'
             break;
     }
 
@@ -63,37 +56,76 @@ const positions = (arr) => {
         return true
     }
 
-    while (true) {
-
-        while (inBounds(x, y) &&arr[x][y] !== '#' ) {
-            arr[x][y] = 'X'
-            x += dir[0]
-            y += dir[1]
+    const endsInLoop = (x, y, marker, dir, arr) => {
+        let visited = []
+        for (let i = 0; i < height; i++) {
+            let line = []
+            for (let j = 0; j < width; j++) {
+                line.push(new Set())
+            }
+            visited.push(line)
         }
 
-        if (!inBounds(x, y)) {
-            return countSteps()
-        }
+        while (true) {
+            while (inBounds(x, y) && arr[x][y] !== '#') {
+                if (visited[x][y].has(marker)) {
+                    return 1
+                }
+                visited[x][y].add(marker)
+                x += dir[0]
+                y += dir[1]
+            }
 
-        // hit obstacle
-        // one step back
-        x -= dir[0]
-        y -= dir[1]
-        // turn right
-        if (dir[0] + dir[1] < 0 && dir[1] === 0) { // up
-            // right
-            dir = [0, 1]
-        } else if (dir[0] + dir[1] < 0 && dir[0] === 0) {// left
-            // up
-            dir = [-1, 0]
-        } else if (dir[0] + dir[1] > 0 && dir[0] === 0) {// right
-            // down
-            dir = [1, 0]
-        } else {// down
-            // left
-            dir = [0, -1]
+            if (!inBounds(x, y)) {
+                // out of bounds, not stuck in loop
+                return 0
+            }
+
+            // hit obstacle
+            // one step back
+            x -= dir[0]
+            y -= dir[1]
+            // turn right
+            if (dir[0] + dir[1] < 0 && dir[1] === 0) { // up
+                // right
+                dir = [0, 1]
+                marker = '>'
+            } else if (dir[0] + dir[1] < 0 && dir[0] === 0) {// left
+                // up
+                dir = [-1, 0]
+                marker = '^'
+            } else if (dir[0] + dir[1] > 0 && dir[0] === 0) {// right
+                // down
+                dir = [1, 0]
+                marker = 'v'
+            } else {// down
+                // left
+                dir = [0, -1]
+                marker = '<'
+            }
         }
     }
+
+    let count = 0;
+    for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
+            if (arr[i][j] === '^')
+                continue
+            if (arr[i][j] === '#')
+                continue
+            const copy = []
+            for (const line of arr) {
+                copy.push([...line])
+            }
+            copy[i][j] = '#' // newly placed obstacle
+            console.log(i, j)
+            // console.log(copy)
+            count += endsInLoop(x, y, marker, dir, copy)
+
+        }
+    }
+
+    return count
 }
 
 let main = () => {
