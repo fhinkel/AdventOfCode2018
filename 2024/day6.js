@@ -3,76 +3,102 @@ const fs = require('fs');
 let readInput = () => {
     let res = fs.readFileSync('./input.txt');
     // let res = fs.readFileSync('./test-input.txt');
-    res = res.toString().split('\n').map(line => line.trim())
-    const index = res.indexOf("")
-    const orders = res.slice(0, index).map(s => s.split("|").map(Number))
-    const updates = res.slice(index + 1).map(s => s.split(",").map(Number))
-    return [orders, updates];
+    res = res.toString().split('\n').map(line => line.split(''))
+    // .#..^.....
+    return res;
 }
 
-const sumPages = (orders, updates) => {
-    // 47|53
-    // 97|13
-    // 97|61
+const positions = (arr) => {
+    const height = arr.length;
+    const width = arr[0].length;
 
-    // 75,47,61,53,29
-    // 53 47
-    const m = new Map();
-    // key: second
-    // value: array of those allowed first
-    for (const [first, second] of orders) {
-        if (!m.has(second)) {
-            m.set(second, [first])
-        } else {
-            m.get(second).push(first)
-        }
-    }
-
-    const compareFn = (a, b) => {
-        // > 0 	sort a after b, e.g. [b, a]   
-        if (m.has(a)) {
-            if ((m.get(a)).indexOf(b) !== -1) {
-                // a > b
-                return 1;
+    const guardSymbols = ['^', 'v', '<', '>']
+    const findGuard = () => {
+        for (let i = 0; i < height; i++) {
+            for (let j = 0; j < width; j++) {
+                if (guardSymbols.includes(arr[i][j])) {
+                    return [i, j]
+                }
             }
         }
-        // a < b
-        return -1
+        throw new Error('no guard found anywhere')
     }
 
-    Array.prototype.equals = function (array) {
-        // if the other array is a falsy value, return
-        if (!array)
-            return false;
-
-        // compare lengths - can save a lot of time 
-        if (this.length != array.length)
-            return false;
-        for (let i = 0, l = this.length; i < l; i++) {
-            // Check
-            if (this[i] != array[i])
-                return false;
+    const countSteps = () => {
+        let count = 0
+        for (let i = 0; i < height; i++) {
+            for (let j = 0; j < width; j++) {
+                if (arr[i][j] === 'X') {
+                    count++
+                }
+            }
         }
-        return true;
-
+        return count
     }
 
-    let sum = 0
-    for (const update of updates) {
-        let unsorted = [...update]
-        update.sort(compareFn)
-        if (!unsorted.equals(update)) {
-            const l = update.length
-            sum += update[Math.floor(l / 2)]
+    let [x, y] = findGuard()
+    const direction = arr[x][y]
+    arr[x][y] = 'X'
+    let dir;
+    switch (direction) {
+        case '^':
+            dir = [-1, 0]
+            break;
+        case 'v':
+            dir = [1, 0]
+            break;
+        case '<':
+            dir = [0, -1]
+            break;
+        case '>':
+            dir = [0, 1]
+            break;
+    }
+
+    const inBounds = (x, y) => {
+        if (x < 0) return false
+        if (y < 0) return false
+        if (x >= height) return false
+        if (y >= width) return false
+        return true
+    }
+
+    while (true) {
+
+        while (inBounds(x, y) &&arr[x][y] !== '#' ) {
+            arr[x][y] = 'X'
+            x += dir[0]
+            y += dir[1]
+        }
+
+        if (!inBounds(x, y)) {
+            return countSteps()
+        }
+
+        // hit obstacle
+        // one step back
+        x -= dir[0]
+        y -= dir[1]
+        // turn right
+        if (dir[0] + dir[1] < 0 && dir[1] === 0) { // up
+            // right
+            dir = [0, 1]
+        } else if (dir[0] + dir[1] < 0 && dir[0] === 0) {// left
+            // up
+            dir = [-1, 0]
+        } else if (dir[0] + dir[1] > 0 && dir[0] === 0) {// right
+            // down
+            dir = [1, 0]
+        } else {// down
+            // left
+            dir = [0, -1]
         }
     }
-
-    return sum
 }
 
 let main = () => {
-    let [orders, updates] = readInput();
-    let sum = sumPages(orders, updates);
+    let arr = readInput();
+    let sum = positions(arr);
     console.log(sum);
 }
 
