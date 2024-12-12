@@ -7,43 +7,85 @@ let readInput = () => {
     return res;
 }
 
-const sumEquation = (line) => {
-    // 190: 10 19    
-    let [res, operands] = line.split(':')
-    operands = operands.trim().split(' ').map(Number)
-    res = Number(res)
+const uniqueLocations = (arr) => {
+    const map = new Map(); // key: frequency symbol, value: array of pairs of coordinates
+    const height = arr.length
+    const width = arr[0].length
 
-    const evalRec = (n, operands) => {
-        const ops = [...operands]
-        if (ops.length === 0) return [n]
-
-        let first = ops[0]
-        ops.shift()
-        let sum = evalRec(n + first, ops)
-        let prod = evalRec(n * first, ops)
-        let concat = evalRec(Number((String(n) + String(first))), ops)
-
-        return [...sum, ...prod, ...concat]
+    for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
+            const symbol = arr[i][j]
+            if (symbol !== '.') {
+                if (!map.has(symbol)) {
+                    map.set(symbol, [[i, j]])
+                } else {
+                    map.get(symbol).push([i, j])
+                }
+            }
+        }
     }
 
-    let first = operands[0]
-    operands.shift()
-    let possibleResults = evalRec(first, operands)
-
-    if (possibleResults.includes(res)) {
-        return res
+    // will hold antinode locations
+    let res = new Array(height)
+    for (let i = 0; i < height; i++) {
+        res[i] = new Array(width)
     }
-    return 0
+
+    const isInBounds = (pair) => {
+        if (pair[0] < 0) return false
+        if (pair[1] < 0) return false
+        if (pair[0] >= height) return false
+        if (pair[1] >= width) return false
+        return true
+    }
+
+    for (const [, pairs] of map.entries()) {
+
+        for (let i = 0; i < pairs.length - 1; i++) {
+            for (j = i + 1; j < pairs.length; j++) {
+                const a = pairs[i]
+                const b = pairs[j]
+                const heightDiff = a[0] - b[0]
+                const widthDiff = a[1] - b[1]
+                const antinode1 = [a[0] + heightDiff, a[1] + widthDiff]
+                const antinode2 = [b[0] - heightDiff, b[1] - widthDiff]
+                // x .
+                // . x
+                // [0,0], [1,1
+                // diff [-1, -1]
+
+                // . X
+                // X . 
+                // [0,1], [1,0]
+                // diff[-1, 1]
+
+                if (isInBounds(antinode1)) {
+                    res[antinode1[0]][antinode1[1]] = '#'
+                }
+                if (isInBounds(antinode2)) {
+                    res[antinode2[0]][antinode2[1]] = '#'
+                }
+            }
+        }
+    }
+
+
+    let count = 0
+    for (const line of res) {
+        for (const el of line) {
+            if (el === '#') {
+                count++
+            }
+        }
+    }
+    return count
 }
 
 
 let main = () => {
     let arr = readInput();
-    let sum = 0
-    for (const line of arr) {
-        sum += sumEquation(line);
-    }
-    console.log(sum);
+    let locs = uniqueLocations(arr);
+    console.log(locs);
 }
 
 main();
