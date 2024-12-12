@@ -7,14 +7,6 @@ let readInput = () => {
     return res;
 }
 
-const gcd = (a, b) => {
-    if (!b) {
-        return a;
-    }
-
-    return gcd(b, a % b);
-}
-
 const uniqueLocations = (arr) => {
     const map = new Map(); // key: frequency symbol, value: array of pairs of coordinates
     const height = arr.length
@@ -56,28 +48,13 @@ const uniqueLocations = (arr) => {
                 let heightDiff = a[0] - b[0]
                 let widthDiff = a[1] - b[1]
 
-                const div = gcd(Math.abs(heightDiff), Math.abs(widthDiff))
-                // console.log(heightDiff, widthDiff, div)
-                if (div !== 1) { // never happens in part 1
-                    throw new Error("wait, gcd?!")
-                    heightDiff /= div
-                    widthDiff /= div
-
-                    // nodes between the pair
-                    let antinode = [a[0] - heightDiff, a[1] - widthDiff]
-                    for (let i = 0; i < div; i++) {
-                        res[antinode[0]][antinode[1]] = '#'
-                        antinode = [antinode[0] - heightDiff, antinode[1] - widthDiff]
-                    }
-                }
-
                 let antinode = [a[0], a[1]]
                 while (isInBounds(antinode)) {
                     res[antinode[0]][antinode[1]] = '#'
                     antinode = [antinode[0] + heightDiff, antinode[1] + widthDiff]
                 }
 
-                antinode = [b[0], b[1]]
+                antinode = [a[0] - heightDiff, a[1] - widthDiff]
                 while (isInBounds(antinode)) {
                     res[antinode[0]][antinode[1]] = '#'
                     antinode = [antinode[0] - heightDiff, antinode[1] - widthDiff]
