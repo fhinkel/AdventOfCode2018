@@ -12,25 +12,18 @@ const sumEquation = (line) => {
     let [res, operands] = line.split(':')
     operands = operands.trim().split(' ').map(Number)
     res = Number(res)
-    // console.log(res, operands)
 
     const evalRec = (n, operands) => {
         const ops = [...operands]
         if (ops.length === 0) return [n]
 
-        let b = ops[0]
+        let first = ops[0]
         ops.shift()
-        let sum = evalRec(n + b, ops)
-        let prod = evalRec(n * b, ops)
-        let con = String(n) + String(b)
-        let concat = evalRec(Number(con), ops)
+        let sum = evalRec(n + first, ops)
+        let prod = evalRec(n * first, ops)
+        let concat = evalRec(Number((String(n) + String(first))), ops)
 
         return [...sum, ...prod, ...concat]
-    }
-
-    if (operands.length === 1) {
-        throw new Error("not enough operands")
-        // return res === operands[0]
     }
 
     let first = operands[0]
@@ -41,7 +34,6 @@ const sumEquation = (line) => {
         return res
     }
     return 0
-
 }
 
 
