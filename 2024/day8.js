@@ -7,6 +7,14 @@ let readInput = () => {
     return res;
 }
 
+const gcd = (a, b) => {
+    if (!b) {
+        return a;
+    }
+
+    return gcd(b, a % b);
+}
+
 const uniqueLocations = (arr) => {
     const map = new Map(); // key: frequency symbol, value: array of pairs of coordinates
     const height = arr.length
@@ -45,30 +53,51 @@ const uniqueLocations = (arr) => {
             for (j = i + 1; j < pairs.length; j++) {
                 const a = pairs[i]
                 const b = pairs[j]
-                const heightDiff = a[0] - b[0]
-                const widthDiff = a[1] - b[1]
-                const antinode1 = [a[0] + heightDiff, a[1] + widthDiff]
-                const antinode2 = [b[0] - heightDiff, b[1] - widthDiff]
+                let heightDiff = a[0] - b[0]
+                let widthDiff = a[1] - b[1]
+
+                const div = gcd(Math.abs(heightDiff), Math.abs(widthDiff))
+                // console.log(heightDiff, widthDiff, div)
+                if (div !== 1) { // never happens in part 1
+                    throw new Error("wait, gcd?!")
+                    heightDiff /= div
+                    widthDiff /= div
+
+                    // nodes between the pair
+                    let antinode = [a[0] - heightDiff, a[1] - widthDiff]
+                    for (let i = 0; i < div; i++) {
+                        res[antinode[0]][antinode[1]] = '#'
+                        antinode = [antinode[0] - heightDiff, antinode[1] - widthDiff]
+                    }
+                }
+
+                let antinode = [a[0], a[1]]
+                while (isInBounds(antinode)) {
+                    res[antinode[0]][antinode[1]] = '#'
+                    antinode = [antinode[0] + heightDiff, antinode[1] + widthDiff]
+                }
+
+                antinode = [b[0], b[1]]
+                while (isInBounds(antinode)) {
+                    res[antinode[0]][antinode[1]] = '#'
+                    antinode = [antinode[0] - heightDiff, antinode[1] - widthDiff]
+                }
                 // x .
                 // . x
                 // [0,0], [1,1
                 // diff [-1, -1]
 
+                // x..
+                // ...
+                // ..x
+
                 // . X
                 // X . 
                 // [0,1], [1,0]
                 // diff[-1, 1]
-
-                if (isInBounds(antinode1)) {
-                    res[antinode1[0]][antinode1[1]] = '#'
-                }
-                if (isInBounds(antinode2)) {
-                    res[antinode2[0]][antinode2[1]] = '#'
-                }
             }
         }
     }
-
 
     let count = 0
     for (const line of res) {
