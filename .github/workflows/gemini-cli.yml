@@ -300,7 +300,7 @@ jobs:
                    - `git add .`
                    - `git commit -m "feat: <describe the fix>"`
                    - `git push origin issue/${ISSUE_NUMBER}/my-fix`
-                   - After pushing, you can create a pull request: `gh pr create --title "Fixes #${ISSUE_NUMBER}: <short title>" --body "This PR addresses issue #${ISSUE_NUMBER}."`
+                   - After pushing, create a pull request: `gh pr create --title "Fixes #${ISSUE_NUMBER}: <short title>" --body "Closes #${ISSUE_NUMBER}."`
                - Summarize what was changed and why in a markdown file: `write_file("response.md", "<your response here>")`
                - Post the response as a comment:
                  - For PRs: `gh pr comment "${ISSUE_NUMBER}" --body-file response.md`
